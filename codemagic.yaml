@@ -19,7 +19,7 @@ workflows:
           cd ..
       
       - name: Build iOS App for Simulator
-        script: flutter build ios --simulator --release
+        script: flutter build ios --simulator 
     
     artifacts:
       - build/ios/Release-iphonesimulator/*.app
