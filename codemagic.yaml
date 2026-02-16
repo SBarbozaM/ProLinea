@@ -1,0 +1,22 @@
+workflows:
+  ios-workflow:
+    name: iOS Build
+    max_build_duration: 120
+    environment:
+      flutter: stable
+      xcode: latest
+    scripts:
+      - name: Get Flutter packages
+        script: flutter pub get
+      
+      - name: Set iOS Deployment Target
+        script: |
+          cd ios
+          sed -i '' "s/platform :ios, '13.0'/platform :ios, '15.0'/" Podfile
+          cd ..
+      
+      - name: Build iOS App
+        script: flutter build ipa --release
+    
+    artifacts:
+      - build/ios/ipa/*.ipa
