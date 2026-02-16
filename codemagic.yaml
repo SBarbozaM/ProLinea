@@ -10,16 +10,11 @@ workflows:
       - name: Get Flutter packages
         script: flutter pub get
       
-      - name: Set iOS Deployment Target
+      - name: Fix iOS Deployment Target
         script: |
           cd ios
-          # Verificar si la línea ya existe y modificarla, o agregarla
-          if grep -q "platform :ios" Podfile; then
-            sed -i '' 's/platform :ios, .*/platform :ios, '"'"'15.0'"'"'/' Podfile
-          else
-            # Si no existe, agregarla al inicio del archivo
-            (echo "platform :ios, '15.0'"; cat Podfile) > Podfile.tmp && mv Podfile.tmp Podfile
-          fi
+          # Crear un nuevo Podfile con la plataforma correcta
+          cat Podfile | awk 'BEGIN{found=0} /^platform :ios/{if(!found){print "platform :ios, '\''15.0'\''"; found=1} next} 1' > Podfile.tmp && mv Podfile.tmp Podfile
           cd ..
       
       - name: Build iOS App
