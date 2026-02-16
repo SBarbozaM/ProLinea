@@ -12,10 +12,7 @@ workflows:
       
       - name: Fix iOS Deployment Target
         script: |
-          cd ios
-          # Crear un nuevo Podfile con la plataforma correcta
-          cat Podfile | awk 'BEGIN{found=0} /^platform :ios/{if(!found){print "platform :ios, '\''15.0'\''"; found=1} next} 1' > Podfile.tmp && mv Podfile.tmp Podfile
-          cd ..
+          ruby -i -pe "gsub(/platform :ios, '[^']*'/, \"platform :ios, '15.0'\"); gsub(/^# platform/, \"platform :ios, '15.0'\\n# platform\")" ios/Podfile
       
       - name: Build iOS App
         script: flutter build ipa --release
