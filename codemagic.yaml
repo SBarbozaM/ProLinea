@@ -12,7 +12,11 @@ workflows:
       
       - name: Fix iOS Deployment Target
         script: |
-          ruby -i -pe "gsub(/platform :ios, '[^']*'/, \"platform :ios, '15.0'\"); gsub(/^# platform/, \"platform :ios, '15.0'\\n# platform\")" ios/Podfile
+          cd ios
+          echo "platform :ios, '15.0'" > Podfile.new
+          cat Podfile | grep -v "^platform :ios" >> Podfile.new
+          mv Podfile.new Podfile
+          cd ..
       
       - name: Build iOS App
         script: flutter build ipa --release
