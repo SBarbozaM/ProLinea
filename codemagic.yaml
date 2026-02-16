@@ -5,6 +5,7 @@ workflows:
     environment:
       flutter: stable
       xcode: latest
+    
     scripts:
       - name: Get Flutter packages
         script: flutter pub get
@@ -12,7 +13,13 @@ workflows:
       - name: Set iOS Deployment Target
         script: |
           cd ios
-          sed -i '' "s/platform :ios, '13.0'/platform :ios, '15.0'/" Podfile
+          # Verificar si la línea ya existe y modificarla, o agregarla
+          if grep -q "platform :ios" Podfile; then
+            sed -i '' 's/platform :ios, .*/platform :ios, '"'"'15.0'"'"'/' Podfile
+          else
+            # Si no existe, agregarla al inicio del archivo
+            (echo "platform :ios, '15.0'"; cat Podfile) > Podfile.tmp && mv Podfile.tmp Podfile
+          fi
           cd ..
       
       - name: Build iOS App
