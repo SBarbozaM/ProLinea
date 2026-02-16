@@ -1,0 +1,80 @@
+import '../models/Copiloto/data_geocerca.dart';
+
+class GeocercaService {
+  static List<DataGeocerca> dataGeocercas = [
+    DataGeocerca(
+      idGeocerca: "21907430-392",
+      nombre: "Virgen de la puerta",
+      fechaRegistro: "",
+      coordenadas: [
+        Coordenada(latitude: -8.1047289231, longitude: -79.0340206161, orden: 1),
+        Coordenada(latitude: -8.1050661612, longitude: -79.0341949596, orden: 2),
+        Coordenada(latitude: -8.105262662, longitude: -79.0344846382, orden: 3),
+        Coordenada(latitude: -8.105294527, longitude: -79.0347823634, orden: 4),
+        Coordenada(latitude: -8.1052679728, longitude: -79.0349862113, orden: 5),
+        Coordenada(latitude: -8.1051829995, longitude: -79.0351739659, orden: 6),
+        Coordenada(latitude: -8.1051325466, longitude: -79.0353509917, orden: 7),
+        Coordenada(latitude: -8.1050767828, longitude: -79.0355280175, orden: 8),
+        Coordenada(latitude: -8.1051405128, longitude: -79.035726501, orden: 9),
+        Coordenada(latitude: -8.1052520403, longitude: -79.0357989206, orden: 10),
+        Coordenada(latitude: -8.1058255353, longitude: -79.036070901, orden: 11),
+        Coordenada(latitude: -8.106133563, longitude: -79.0361889182, orden: 12),
+        Coordenada(latitude: -8.1068717662, longitude: -79.03649469, orden: 13),
+        Coordenada(latitude: -8.107535617, longitude: -79.0367682753, orden: 14),
+        Coordenada(latitude: -8.1079020621, longitude: -79.036918479, orden: 15),
+        Coordenada(latitude: -8.1081410478, longitude: -79.0368809281, orden: 16),
+        Coordenada(latitude: -8.1086880592, longitude: -79.0371115981, orden: 17),
+        Coordenada(latitude: -8.1091660296, longitude: -79.0373744546, orden: 18),
+        Coordenada(latitude: -8.1098989166, longitude: -79.0380128203, orden: 19),
+        Coordenada(latitude: -8.1100369966, longitude: -79.0381201087, orden: 20),
+        Coordenada(latitude: -8.1126074002, longitude: -79.0345366774, orden: 21),
+        Coordenada(latitude: -8.1130003944, longitude: -79.0349068223, orden: 22),
+        Coordenada(latitude: -8.115661036, longitude: -79.0371772242, orden: 23),
+        Coordenada(latitude: -8.1192457137, longitude: -79.0402630178, orden: 24),
+        Coordenada(latitude: -8.1192138498, longitude: -79.0404883233, orden: 25),
+        Coordenada(latitude: -8.1193359946, longitude: -79.040740451, orden: 26),
+        Coordenada(latitude: -8.1195962162, longitude: -79.0407833663, orden: 27),
+        Coordenada(latitude: -8.119776778, longitude: -79.0407189933, orden: 28),
+        Coordenada(latitude: -8.121295618, longitude: -79.0420332757, orden: 29),
+        Coordenada(latitude: -8.1232180576, longitude: -79.0437016097, orden: 30)
+      ],
+      tipo: 1,
+      vMaximaBuses: 30,
+    ),
+    DataGeocerca(
+      idGeocerca: "21907430-393",
+      nombre: "Virgen de la puerta 2",
+      fechaRegistro: "",
+      coordenadas: [
+        Coordenada(latitude: -8.1234795211, longitude: -79.0439366657, orden: 1),
+        Coordenada(latitude: -8.1248045112, longitude: -79.0450792868, orden: 2),
+        Coordenada(latitude: -8.1270135547, longitude: -79.0469817863, orden: 3),
+        Coordenada(latitude: -8.1316708746, longitude: -79.051045333, orden: 4),
+      ],
+      tipo: 1,
+      vMaximaBuses: 30,
+    ),
+    DataGeocerca(
+      idGeocerca: "21907430-394",
+      nombre: "Juan Pablo",
+      fechaRegistro: "",
+      coordenadas: [
+        Coordenada(latitude: -8.1319576491, longitude: -79.051093487, orden: 1),
+        Coordenada(latitude: -8.1380699383, longitude: -79.0563880796, orden: 2),
+      ],
+      tipo: 1,
+      vMaximaBuses: 30,
+    ),
+    DataGeocerca(
+      idGeocerca: "21907430-395",
+      nombre: "LINEATEST",
+      fechaRegistro: "",
+      coordenadas: [
+        Coordenada(latitude: -8.1071190565, longitude: -79.0321210853, orden: 1),
+        Coordenada(latitude: -8.1077085557, longitude: -79.0326226584, orden: 2),
+      ],
+      tipo: 1,
+      vMaximaBuses: 3,
+    ),
+  ];
+}

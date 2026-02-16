@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "829412782255",
+    "project_id": "prolinea-c54d2",
+    "storage_bucket": "prolinea-c54d2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:829412782255:android:04ccb57ea1d21aa65a245a",
+        "android_client_info": {
+          "package_name": "pe.linea.lineaempresa"  
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDqE7oEO0c3rgCIbfEi1bBQZWw-z-Bky_I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
