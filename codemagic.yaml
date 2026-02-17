@@ -18,8 +18,8 @@ workflows:
           mv Podfile.new Podfile
           cd ..
       
-      - name: Build iOS App for Simulator
-        script: flutter build ios --simulator 
+      - name: Build iOS App
+        script: flutter build ipa --release
     
     artifacts:
-      - build/ios/Release-iphonesimulator/*.app
+      - build/ios/ipa/*.ipa
