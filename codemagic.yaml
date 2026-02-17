@@ -5,6 +5,13 @@ workflows:
     environment:
       flutter: stable
       xcode: latest
+      ios_signing:
+        distribution_type: app_store  # o ad_hoc si es para pruebas
+        bundle_identifier: com.example.embarquesTdp  # cambia esto por tu bundle ID real
+      app_store_connect:
+        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
     
     scripts:
       - name: Get Flutter packages
@@ -17,6 +24,9 @@ workflows:
           cat Podfile | grep -v "^platform :ios" >> Podfile.new
           mv Podfile.new Podfile
           cd ..
+      
+      - name: Set up code signing
+        script: xcode-project use-profiles
       
       - name: Build iOS App
         script: flutter build ipa --release
