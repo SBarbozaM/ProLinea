@@ -5,6 +5,8 @@ workflows:
     environment:
       flutter: stable
       xcode: latest
+      groups:
+        - ios_signing
     
     scripts:
       - name: Get Flutter packages
@@ -19,7 +21,9 @@ workflows:
           cd ..
       
       - name: Build iOS App
-        script: flutter build ios
+        script: |
+          flutter build ipa --release \
+            --export-options-template=ios/ExportOptions.plist
     
     artifacts:
       - build/ios/ipa/*.ipa
