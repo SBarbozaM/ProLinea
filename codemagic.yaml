@@ -19,7 +19,7 @@ workflows:
           cd ..
       
       - name: Build iOS App
-        script: flutter build ipa 
+        script: flutter build ios
     
     artifacts:
       - build/ios/ipa/*.ipa
