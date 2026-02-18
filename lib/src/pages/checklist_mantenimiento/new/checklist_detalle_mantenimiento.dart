@@ -185,7 +185,7 @@ class _CheckListDetalleMantenimientoPageState extends State<CheckListDetalleMant
                                   return;
                                 }
 
-                                if (await Permission.camera.request().isGranted) {
+                                // if (await Permission.camera.request().isGranted) {
                                   final picker = ImagePicker();
                                   final XFile? img = await picker.pickImage(
                                     source: ImageSource.camera,
@@ -237,7 +237,7 @@ class _CheckListDetalleMantenimientoPageState extends State<CheckListDetalleMant
                                   setState(() {
                                     widget.checkList.recursos.add(fotos);
                                   });
-                                }
+                                // } comentado validación para la cámara en ios
                               },
                               child: Icon(
                                 Icons.add_a_photo,
