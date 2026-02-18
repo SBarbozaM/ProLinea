@@ -7,7 +7,7 @@ workflows:
       xcode: latest
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: com.linea.ProLinea  # tu bundle ID real
+        bundle_identifier: W4DR9N95K2.com.linea.ProLinea  # tu bundle ID real
     
     scripts:
       - name: Get Flutter packages
@@ -25,7 +25,7 @@ workflows:
         script: xcode-project use-profiles
       
       - name: Build iOS App
-        script: flutter build ios --simulator
+        script: flutter build ipa --release
     
     artifacts:
-      - build/ios/iphonesimulator/*.app
+      - build/ios/ipa/*.ipa
