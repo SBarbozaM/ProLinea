@@ -19,7 +19,7 @@ class AutorizacionesPage extends StatefulWidget {
 }
 
 class _AutorizacionesPageState extends State<AutorizacionesPage> {
-  //late AuthUsuarioServicio _authUsuarioServicio;
+  late AuthUsuarioServicio _authUsuarioServicio;
   StatusListaAuthUsuarios status = StatusListaAuthUsuarios.initial;
 
   AuthUsuario autLisModel = AuthUsuario(
@@ -33,10 +33,10 @@ class _AutorizacionesPageState extends State<AutorizacionesPage> {
   @override
   void initState() {
     super.initState();
-    // _obtenerListAuths(
-    //   Provider.of<UsuarioProvider>(context, listen: false).usuario.tipoDoc,
-    //   Provider.of<UsuarioProvider>(context, listen: false).usuario.numDoc,
-    // );
+    _obtenerListAuths(
+      Provider.of<UsuarioProvider>(context, listen: false).usuario.tipoDoc,
+      Provider.of<UsuarioProvider>(context, listen: false).usuario.numDoc,
+    );
   }
 
   final List<String> imagePaths = [
