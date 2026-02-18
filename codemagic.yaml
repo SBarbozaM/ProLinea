@@ -8,10 +8,6 @@ workflows:
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.linea.ProLinea
-      app_store_connect:
-        issuer_id: 69a6de8b-24af-47e3-e053-5b8c7c11a4d1
-        key_id: 28CYBG9836
-        private_key: ProLinea
     
     scripts:
       - name: Get Flutter packages
