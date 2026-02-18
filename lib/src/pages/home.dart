@@ -2393,7 +2393,7 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                     alignment: Alignment.center,
                                     child: const Text(
-                                      "Documentos",
+                                      "Doc. Laborales",
                                       style: TextStyle(
                                         color: AppColors.whiteColor,
                                         fontWeight: FontWeight.bold,

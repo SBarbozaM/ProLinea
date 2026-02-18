@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Embarques Tdp</string>
+	<string>ProLinea</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -57,5 +57,7 @@
 	<string>Esta aplicación necesita acceso al micrófono</string>
 	<key>NSContactsUsageDescription</key>
 	<string>Esta aplicación necesita acceso a tus contactos</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Esta aplicación usa Face ID para confirmar tu identidad</string>
 </dict>
 </plist>

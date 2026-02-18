@@ -211,7 +211,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       ],
       supportedLocales: [const Locale('en'), const Locale('es')],
       debugShowCheckedModeBanner: false,
-      title: 'Embarques TDP',
+      title: 'ProLinea',
       theme: ThemeData(
         useMaterial3: false,
       ),
