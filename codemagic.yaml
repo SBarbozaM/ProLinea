@@ -20,6 +20,11 @@ workflows:
           cat Podfile | grep -v "^platform :ios" >> Podfile.new
           mv Podfile.new Podfile
           cd ..
+
+      - name: Setup rive_native
+        script: |
+          cd $CM_BUILD_DIR
+          dart run rive_native:setup --platform ios
       
       - name: Set up code signing
         script: |
