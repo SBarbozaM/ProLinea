@@ -7,7 +7,7 @@ workflows:
       xcode: latest
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: com.linea.ProLinea  # tu bundle ID real
+        bundle_identifier: com.linea.ProLinea
     
     scripts:
       - name: Get Flutter packages
@@ -22,7 +22,13 @@ workflows:
           cd ..
       
       - name: Set up code signing
-        script: xcode-project use-profiles
+        script: |
+          keychain initialize
+          app-store-connect fetch-signing-files com.linea.ProLinea \
+            --type IOS_APP_STORE \
+            --create
+          keychain add-certificates
+          xcode-project use-profiles
       
       - name: Build iOS App
         script: flutter build ipa --release
