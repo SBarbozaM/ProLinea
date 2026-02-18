@@ -13,7 +13,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
+// import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
 class ControlSalidaPage extends StatefulWidget {
   final ValueNotifier<Position?>? posicionNotifier;

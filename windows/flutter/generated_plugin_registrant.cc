@@ -20,7 +20,6 @@
 #include <printing/printing_plugin.h>
 #include <rive_native/rive_native_plugin.h>
 #include <url_launcher_windows/url_launcher_windows.h>
-#include <webview_windows/webview_windows_plugin.h>
 
 void RegisterPlugins(flutter::PluginRegistry* registry) {
   AudioplayersWindowsPluginRegisterWithRegistrar(
@@ -51,6 +50,4 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("RiveNativePlugin"));
   UrlLauncherWindowsRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("UrlLauncherWindows"));
-  WebviewWindowsPluginRegisterWithRegistrar(
-      registry->GetRegistrarForPlugin("WebviewWindowsPlugin"));
 }

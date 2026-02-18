@@ -9,7 +9,7 @@ import 'package:embarques_tdp/src/utils/ScanQR.dart';
 import 'package:embarques_tdp/src/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
+// import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
 class ScanUnidadOrdenMantenimientoPage extends StatefulWidget {
   const ScanUnidadOrdenMantenimientoPage({super.key});
