@@ -53,6 +53,11 @@ workflows:
           </plist>
           EOF
           flutter build ipa --release --export-options-plist=/tmp/ExportOptions.plist
+
+      - name: Publish to TestFlight
+        script: |
+          app-store-connect publish \
+            --path build/ios/ipa/*.ipa
     
     artifacts:
       - build/ios/ipa/*.ipa
