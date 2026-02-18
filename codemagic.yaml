@@ -57,7 +57,10 @@ workflows:
       - name: Publish to TestFlight
         script: |
           app-store-connect publish \
-            --path build/ios/ipa/*.ipa
+            --path build/ios/ipa/*.ipa \
+            --issuer-id $APP_STORE_CONNECT_ISSUER_ID \
+            --key-id $APP_STORE_CONNECT_KEY_IDENTIFIER \
+            --private-key $APP_STORE_CONNECT_PRIVATE_KEY
     
     artifacts:
       - build/ios/ipa/*.ipa
