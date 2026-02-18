@@ -9,7 +9,7 @@ workflows:
         - app_store_credentials
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: com.linea.ProLinea
+        bundle_identifier: pe.linea.lineaempresa
     
     scripts:
       - name: Get Flutter packages
