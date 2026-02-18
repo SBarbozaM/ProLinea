@@ -8,11 +8,11 @@ workflows:
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.linea.ProLinea
-
+    
     scripts:
       - name: Get Flutter packages
         script: flutter pub get
-
+      
       - name: Fix iOS Deployment Target
         script: |
           cd ios
@@ -25,7 +25,7 @@ workflows:
         script: |
           cd $CM_BUILD_DIR
           dart run rive_native:setup --platform ios
-
+      
       - name: Set up code signing
         script: |
           keychain initialize
@@ -34,25 +34,25 @@ workflows:
             --create
           keychain add-certificates
           xcode-project use-profiles
-
+      
       - name: Build iOS App
-  script: |
-    cat > /tmp/ExportOptions.plist << EOF
-    <?xml version="1.0" encoding="UTF-8"?>
-    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-    <plist version="1.0">
-    <dict>
-      <key>method</key>
-      <string>app-store</string>
-      <key>provisioningProfiles</key>
-      <dict>
-        <key>com.linea.ProLinea</key>
-        <string>CodeMagic</string>
-      </dict>
-    </dict>
-    </plist>
-    EOF
-    flutter build ipa --release --export-options-plist=/tmp/ExportOptions.plist
-
+        script: |
+          cat > /tmp/ExportOptions.plist << EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>app-store</string>
+            <key>provisioningProfiles</key>
+            <dict>
+              <key>com.linea.ProLinea</key>
+              <string>CodeMagic</string>
+            </dict>
+          </dict>
+          </plist>
+          EOF
+          flutter build ipa --release --export-options-plist=/tmp/ExportOptions.plist
+    
     artifacts:
       - build/ios/ipa/*.ipa
