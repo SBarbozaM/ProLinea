@@ -33,11 +33,12 @@ import 'package:embarques_tdp/src/utils/app_data.dart';
 import 'package:local_auth_android/local_auth_android.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:geolocator/geolocator.dart';
+
 import 'package:http/http.dart';
 import 'package:intl/intl.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:local_auth_darwin/local_auth_darwin.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -2349,6 +2350,9 @@ class _HomePageState extends State<HomePage> {
                               authMessages: <AuthMessages>[
                                 AndroidAuthMessages(
                                   signInTitle: 'Autenticación requerida',
+                                  cancelButton: 'Cancelar',
+                                ),
+                                IOSAuthMessages(
                                   cancelButton: 'Cancelar',
                                 ),
                               ],
