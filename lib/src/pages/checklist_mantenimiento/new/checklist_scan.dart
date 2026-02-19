@@ -113,7 +113,7 @@ class _CheckListScanPageState extends State<CheckListScanPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("QR UNIDAD", style: TextStyle(color: AppColors.mainBlueColor, fontSize: 16)),
+              Text("QR UNIDAD (PLACA UNIDAD)", style: TextStyle(color: AppColors.mainBlueColor, fontSize: 16)),
               _inputField(
                 focus: _focusFotocheck,
                 Controller: textVehiculoController,

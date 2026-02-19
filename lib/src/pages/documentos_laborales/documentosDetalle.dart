@@ -71,7 +71,28 @@ class _DocumentosDetallePageState extends State<DocumentosDetallePage> {
               _buildSwitchBar(),
               const SizedBox(height: 4),
 
-              /// 🔄 LISTADO
+              // LEYENDA
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.yellow.shade100,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.yellow.shade700),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.circle, color: Colors.yellow.shade700, size: 14),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Los recuadros amarillos tienen descuentos. Tócalos para ver el detalle.',
+                        style: TextStyle(fontSize: 13),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               Expanded(
                 child: RefreshIndicator(
                   color: AppColors.mainBlueColor,

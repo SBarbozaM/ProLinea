@@ -2337,9 +2337,10 @@ class _HomePageState extends State<HomePage> {
                         onTap: () async {
                           final auth = LocalAuthentication();
 
+                          final canCheck = await auth.canCheckBiometrics;
                           final isSupported = await auth.isDeviceSupported();
 
-                          if (!isSupported) {
+                          if (!canCheck && !isSupported) {
                             await mostrarAvisoSeguridad(context);
                             return;
                           }
@@ -2397,7 +2398,7 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                     alignment: Alignment.center,
                                     child: const Text(
-                                      "Doc. Laborales",
+                                      "Docs. Laborales",
                                       style: TextStyle(
                                         color: AppColors.whiteColor,
                                         fontWeight: FontWeight.bold,
