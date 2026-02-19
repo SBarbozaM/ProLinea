@@ -86,7 +86,7 @@ class _DocumentosDetallePageState extends State<DocumentosDetallePage> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Los recuadros amarillos tienen descuentos. Tócalos para ver el detalle.',
+                        'Los recuadros amarillos tienen descuentos. Toca en ! para ver el detalle.',
                         style: TextStyle(fontSize: 13),
                       ),
                     ),
@@ -189,22 +189,33 @@ class _DocumentosDetallePageState extends State<DocumentosDetallePage> {
             title: Text(doc.periodo),
             subtitle: doc.ultVisualizada.isNotEmpty ? Text('Últ. visualizada: ${doc.ultVisualizada}') : null,
 
-            // ⬇️ BOTÓN DESCARGA
-            trailing: IconButton(
-              icon: const Icon(Icons.remove_red_eye_outlined),
-              color: AppColors.mainBlueColor,
-              tooltip: 'Ver documento',
-              onPressed: () {
-                _verDocumento(doc);
-              },
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // 🟡 ICONO ! SOLO SI HAY DESCUENTO
+                if (tieneDescuento)
+                  IconButton(
+                    icon: const Icon(Icons.warning_amber_rounded),
+                    color: Colors.orange,
+                    tooltip: 'Ver descuento',
+                    onPressed: () {
+                      _mostrarModalDocumento(doc);
+                    },
+                  ),
+                // 👁 VER DOCUMENTO
+                IconButton(
+                  icon: const Icon(Icons.remove_red_eye_outlined),
+                  color: AppColors.mainBlueColor,
+                  tooltip: 'Ver documento',
+                  onPressed: () {
+                    _verDocumento(doc);
+                  },
+                ),
+              ],
             ),
 
-            // 🟡 MODAL SOLO SI HAY DESCUENTO
-            onTap: () {
-              if (doc.tieneDescuento != 0) {
-                _mostrarModalDocumento(doc);
-              }
-            },
+            // 👆 TAP EN CARD → VER DOCUMENTO
+            onTap: () => _verDocumento(doc),
           ),
         );
       },
@@ -231,7 +242,7 @@ class _DocumentosDetallePageState extends State<DocumentosDetallePage> {
     );
 
     // 👇 SI SE VISUALIZÓ, RECARGA
-    if (result == true) {
+    if (result == false) {
       _consultarDocumentos();
     }
   }
