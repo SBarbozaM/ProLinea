@@ -173,7 +173,8 @@ class _DocumentosDetallePageState extends State<DocumentosDetallePage> {
                 if (tieneDescuento)
                   GestureDetector(
                     onTap: () {
-                      _mostrarModalDocumento(doc);
+                      return;
+                      // _mostrarModalDocumento(doc);
                     },
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
