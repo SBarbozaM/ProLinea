@@ -70,29 +70,6 @@ class _DocumentosDetallePageState extends State<DocumentosDetallePage> {
             children: [
               _buildSwitchBar(),
               const SizedBox(height: 4),
-
-              // LEYENDA
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: Colors.yellow.shade100,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.yellow.shade700),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.circle, color: Colors.yellow.shade700, size: 14),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Los recuadros amarillos tienen descuentos. Toca en ! para ver el detalle.',
-                        style: TextStyle(fontSize: 13),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
               Expanded(
                 child: RefreshIndicator(
                   color: AppColors.mainBlueColor,
@@ -179,11 +156,11 @@ class _DocumentosDetallePageState extends State<DocumentosDetallePage> {
         final bool tieneDescuento = doc.tieneDescuento != 0;
 
         return Card(
-          color: tieneDescuento ? Colors.yellow.shade100 : Colors.white,
+          color: Colors.white,
           margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           child: ListTile(
             leading: Icon(
-              estadoDocumento == 'N' ? Icons.hourglass_top : Icons.check_circle,
+              estadoDocumento == 'N' ? Icons.hourglass_top_rounded : Icons.check_circle,
               color: estadoDocumento == 'N' ? Colors.orange : Colors.green,
             ),
             title: Text(doc.periodo),
@@ -194,23 +171,28 @@ class _DocumentosDetallePageState extends State<DocumentosDetallePage> {
               children: [
                 // 🟡 ICONO ! SOLO SI HAY DESCUENTO
                 if (tieneDescuento)
-                  IconButton(
-                    icon: const Icon(Icons.warning_amber_rounded),
-                    color: Colors.orange,
-                    tooltip: 'Ver descuento',
-                    onPressed: () {
+                  GestureDetector(
+                    onTap: () {
                       _mostrarModalDocumento(doc);
                     },
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Image.asset(
+                          'assets/images/descuento.png',
+                          width: 32,
+                          height: 32,
+                        ),
+                        Text(
+                          'Con Dscto.',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: const Color.fromARGB(255, 243, 33, 33),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                // 👁 VER DOCUMENTO
-                IconButton(
-                  icon: const Icon(Icons.remove_red_eye_outlined),
-                  color: AppColors.mainBlueColor,
-                  tooltip: 'Ver documento',
-                  onPressed: () {
-                    _verDocumento(doc);
-                  },
-                ),
               ],
             ),
 
@@ -242,7 +224,7 @@ class _DocumentosDetallePageState extends State<DocumentosDetallePage> {
     );
 
     // 👇 SI SE VISUALIZÓ, RECARGA
-    if (result == false) {
+    if (result == false && doc.visualizada == "N") {
       _consultarDocumentos();
     }
   }
