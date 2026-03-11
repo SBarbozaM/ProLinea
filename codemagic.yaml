@@ -46,15 +46,19 @@ workflows:
           <dict>
             <key>method</key>
             <string>app-store</string>
-            <key>provisioningProfiles</key>
-            <dict>
-              <key>pe.linea.lineaempresa</key>
-              <string>CodeMagic</string>
-            </dict>
+            <key>signingStyle</key>
+            <string>automatic</string>
+            <key>teamID</key>
+            <string>$(xcode-project detect-bundle-id --type IOS_APP_STORE | grep teamID | awk '{print $2}')</string>
           </dict>
           </plist>
           EOF
           flutter build ipa --release --export-options-plist=/tmp/ExportOptions.plist
+
+      - name: Build iOS App
+        script: |
+          flutter build ipa --release \
+            --export-options-plist=$CM_EXPORT_OPTIONS_PATH
 
       - name: Publish to TestFlight
         script: |
