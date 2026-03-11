@@ -39,12 +39,6 @@ workflows:
 
       - name: Build iOS App
         script: |
-          # Get the provisioning profile name that was actually installed
-          PROFILE_NAME=$(ls ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision 2>/dev/null | head -1 | xargs -I{} /usr/libexec/PlistBuddy -c "Print :Name" /dev/stdin <<< "$(security cms -D -i {})" 2>/dev/null || echo "")
-          echo "Found profile: $PROFILE_NAME"
-          # Get team ID from the profile
-          TEAM_ID=$(ls ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision 2>/dev/null | head -1 | xargs -I{} /usr/libexec/PlistBuddy -c "Print :TeamIdentifier:0" /dev/stdin <<< "$(security cms -D -i {})" 2>/dev/null || echo "")
-          echo "Found team ID: $TEAM_ID"
           cat > /tmp/ExportOptions.plist << EOF
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -53,19 +47,10 @@ workflows:
             <key>method</key>
             <string>app-store</string>
             <key>teamID</key>
-            <string>$TEAM_ID</string>
-            <key>signingStyle</key>
-            <string>manual</string>
-            <key>provisioningProfiles</key>
-            <dict>
-              <key>pe.linea.lineaempresa</key>
-              <string>$PROFILE_NAME</string>
-            </dict>
+            <string>W4DR9N95K2</string>
           </dict>
           </plist>
           EOF
-          echo "ExportOptions.plist contents:"
-          cat /tmp/ExportOptions.plist
           flutter build ipa --release --export-options-plist=/tmp/ExportOptions.plist
           
       - name: Verify IPA exists
