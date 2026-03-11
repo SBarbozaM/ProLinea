@@ -67,7 +67,7 @@ workflows:
             <key>method</key>
             <string>app-store</string>
             <key>teamID</key>
-            <string>$TEAM_ID</string>
+            <string>W4DR9N95K2</string>
             <key>signingStyle</key>
             <string>manual</string>
             <key>provisioningProfiles</key>
