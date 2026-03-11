@@ -39,6 +39,26 @@ workflows:
 
       - name: Build iOS App
         script: |
+          # Find the actual provisioning profile UUID and Name
+          echo "=== Available Provisioning Profiles ==="
+          PROFILE_PATH=""
+          for f in ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision; do
+            echo "File: $f"
+            NAME=$(security cms -D -i "$f" 2>/dev/null | /usr/libexec/PlistBuddy -c "Print :Name" /dev/stdin 2>/dev/null)
+            UUID=$(security cms -D -i "$f" 2>/dev/null | /usr/libexec/PlistBuddy -c "Print :UUID" /dev/stdin 2>/dev/null)
+            BUNDLE=$(security cms -D -i "$f" 2>/dev/null | /usr/libexec/PlistBuddy -c "Print :Entitlements:application-identifier" /dev/stdin 2>/dev/null)
+            echo "  Name: $NAME"
+            echo "  UUID: $UUID"
+            echo "  Bundle: $BUNDLE"
+            # Pick the one matching our bundle id
+            if echo "$BUNDLE" | grep -q "pe.linea.lineaempresa"; then
+              PROFILE_NAME="$NAME"
+              PROFILE_UUID="$UUID"
+            fi
+          done
+          
+          echo "=== Using Profile: $PROFILE_NAME ($PROFILE_UUID) ==="
+          
           cat > /tmp/ExportOptions.plist << EOF
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -47,10 +67,21 @@ workflows:
             <key>method</key>
             <string>app-store</string>
             <key>teamID</key>
-            <string>W4DR9N95K2</string>
+            <string>$TEAM_ID</string>
+            <key>signingStyle</key>
+            <string>manual</string>
+            <key>provisioningProfiles</key>
+            <dict>
+              <key>pe.linea.lineaempresa</key>
+              <string>$PROFILE_NAME</string>
+            </dict>
           </dict>
           </plist>
           EOF
+          
+          echo "=== ExportOptions.plist ==="
+          cat /tmp/ExportOptions.plist
+          
           flutter build ipa --release --export-options-plist=/tmp/ExportOptions.plist
           
       - name: Verify IPA exists
