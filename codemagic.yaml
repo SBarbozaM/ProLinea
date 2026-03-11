@@ -39,25 +39,16 @@ workflows:
 
       - name: Build iOS App
         script: |
-          # Find the actual provisioning profile UUID and Name
-          echo "=== Available Provisioning Profiles ==="
-          PROFILE_PATH=""
-          for f in ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision; do
-            echo "File: $f"
-            NAME=$(security cms -D -i "$f" 2>/dev/null | /usr/libexec/PlistBuddy -c "Print :Name" /dev/stdin 2>/dev/null)
-            UUID=$(security cms -D -i "$f" 2>/dev/null | /usr/libexec/PlistBuddy -c "Print :UUID" /dev/stdin 2>/dev/null)
-            BUNDLE=$(security cms -D -i "$f" 2>/dev/null | /usr/libexec/PlistBuddy -c "Print :Entitlements:application-identifier" /dev/stdin 2>/dev/null)
-            echo "  Name: $NAME"
-            echo "  UUID: $UUID"
-            echo "  Bundle: $BUNDLE"
-            # Pick the one matching our bundle id
-            if echo "$BUNDLE" | grep -q "pe.linea.lineaempresa"; then
-              PROFILE_NAME="$NAME"
-              PROFILE_UUID="$UUID"
-            fi
-          done
+          PROFILE_FILE=$(ls ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision | head -1)
+          echo "Profile file: $PROFILE_FILE"
           
-          echo "=== Using Profile: $PROFILE_NAME ($PROFILE_UUID) ==="
+          # Use openssl instead of security cms
+          openssl smime -inform DER -verify -noverify -in "$PROFILE_FILE" -out /tmp/profile_decoded.plist 2>/dev/null
+          echo "OpenSSL decode exit: $?"
+          cat /tmp/profile_decoded.plist | head -20
+          
+          NAME=$(/usr/libexec/PlistBuddy -c "Print :Name" /tmp/profile_decoded.plist 2>/dev/null)
+          echo "Profile Name: $NAME"
           
           cat > /tmp/ExportOptions.plist << EOF
           <?xml version="1.0" encoding="UTF-8"?>
@@ -73,7 +64,7 @@ workflows:
             <key>provisioningProfiles</key>
             <dict>
               <key>pe.linea.lineaempresa</key>
-              <string>$PROFILE_NAME</string>
+              <string>$NAME</string>
             </dict>
           </dict>
           </plist>
