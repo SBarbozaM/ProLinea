@@ -41,10 +41,11 @@ workflows:
         script: |
           flutter build ipa --release \
             --export-options-plist=$CM_EXPORT_OPTIONS_PATH
-      - name: Build iOS App
+      - name: Verify IPA exists
         script: |
-          flutter build ipa --release \
-            --export-options-plist=$CM_EXPORT_OPTIONS_PATH
+          echo "Searching for IPA files..."
+          find "$CM_BUILD_DIR" -name "*.ipa" -type f
+          ls -la build/ios/ipa/ || echo "Directory not found"
 
       - name: Publish to TestFlight
         script: |
