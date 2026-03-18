@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:embarques_tdp/src/components/webview_basica.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +41,7 @@ class OneSignalService {
 
     OneSignal.Notifications.addClickListener((event) async {
       Map<String, dynamic> additionalData = event.notification.additionalData ?? {};
-      
+
       // Map<String, dynamic> additionalData = result.notification.additionalData ?? {};
 
       //print('Notification opened: ${result.notification.jsonRepresentation().replaceAll("\\n", "\n")}');
@@ -49,6 +51,7 @@ class OneSignalService {
 
       String? idsubauth = additionalData['idsubauth'];
       String? titulo = additionalData['titulo'];
+      Object? boData = additionalData['bo_data'];
       String? orden = additionalData['orden'];
       String? idauth = additionalData['idauth'];
       String? stitle = additionalData['stitle'];
@@ -79,8 +82,24 @@ class OneSignalService {
           subauthIdModel.updateAuthAction(subAuthAction);
 
           Provider.of<NotificationProvider>(context, listen: false).setNotificationPage(page);
+          if (boData != null) {
+            // boData llega como String JSON, hay que parsearlo
+            final Map<String, dynamic> boDataMap = Map<String, dynamic>.from(boData as Map);
 
-          navigatorKey.currentState?.pushNamedAndRemoveUntil(page, (Route<dynamic> route) => false);
+            navigatorKey.currentState?.pushNamedAndRemoveUntil(
+              page,
+              (Route<dynamic> route) => false,
+              arguments: {
+                'tipoDocumento': boDataMap['tipoDocumento'], // {"id":1,"descripcion":"...","codigo":"REQ-ALM"}
+                'tipo': boDataMap['tipo'], // "pendientes"
+              },
+            );
+          } else {
+            navigatorKey.currentState?.pushNamedAndRemoveUntil(
+              page,
+              (Route<dynamic> route) => false,
+            );
+          }
         }
       } else {
         // Si no hay sesión activa, navega a la página de inicio de sesión

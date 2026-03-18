@@ -11,14 +11,11 @@ class TipoDocumentoServicio {
   String _url = Conexion.apiUrl;
   List<TipoDocumento> _tiposDocumento = [];
 
-  final _tiposDocumentoStreamController =
-      StreamController<List<TipoDocumento>>.broadcast();
+  final _tiposDocumentoStreamController = StreamController<List<TipoDocumento>>.broadcast();
 
-  Function(List<TipoDocumento>) get tiposDocumentoSink =>
-      _tiposDocumentoStreamController.sink.add;
+  Function(List<TipoDocumento>) get tiposDocumentoSink => _tiposDocumentoStreamController.sink.add;
 
-  Stream<List<TipoDocumento>> get tiposDocumentoStream =>
-      _tiposDocumentoStreamController.stream;
+  Stream<List<TipoDocumento>> get tiposDocumentoStream => _tiposDocumentoStreamController.stream;
 
   void disposeStream() {
     _tiposDocumentoStreamController.close();
@@ -35,8 +32,12 @@ class TipoDocumentoServicio {
           final tiposDocumentos = TiposDocumento.fromJsonList(decodedData);
           listaTiposDocumentos.addAll(tiposDocumentos.tiposDocumento);
         }
-      } else {}
-    } catch (e) {}
+      } else {
+        print(resp);
+      }
+    } catch (e) {
+      print(e);
+    }
 
     return listaTiposDocumentos;
   }

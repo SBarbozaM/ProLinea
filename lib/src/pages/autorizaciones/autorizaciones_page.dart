@@ -1,4 +1,6 @@
 import 'package:embarques_tdp/src/models/Autorizaciones/AuthUsuario.dart';
+import 'package:embarques_tdp/src/models/usuario.dart';
+import 'package:embarques_tdp/src/pages/autorizaciones/sub_subAcciones_auth_page.dart';
 
 import 'package:flutter/material.dart';
 import 'package:embarques_tdp/src/utils/app_colors.dart';
@@ -7,21 +9,19 @@ import 'package:provider/provider.dart';
 import '../../providers/providers.dart';
 import '../../providers/connection_status_provider.dart';
 
-import '../../services/auth_usuario_service.dart';
-
 enum StatusListaAuthUsuarios { initial, success, failure, progress }
 
 class AutorizacionesPage extends StatefulWidget {
-  const AutorizacionesPage({super.key});
+  final AccionId? AccionPadre;
+  const AutorizacionesPage({super.key, this.AccionPadre});
 
   @override
   State<AutorizacionesPage> createState() => _AutorizacionesPageState();
 }
 
 class _AutorizacionesPageState extends State<AutorizacionesPage> {
-  late AuthUsuarioServicio _authUsuarioServicio;
   StatusListaAuthUsuarios status = StatusListaAuthUsuarios.initial;
-
+  late Usuario _usuario;
   AuthUsuario autLisModel = AuthUsuario(
     rpta: "",
     mensaje: "",
@@ -33,9 +33,11 @@ class _AutorizacionesPageState extends State<AutorizacionesPage> {
   @override
   void initState() {
     super.initState();
+    // widget.idAccionPadre siempre disponible aquí
     _obtenerListAuths(
       Provider.of<UsuarioProvider>(context, listen: false).usuario.tipoDoc,
       Provider.of<UsuarioProvider>(context, listen: false).usuario.numDoc,
+      widget.AccionPadre!.id, // 👈 directo, sin args, sin perder nada
     );
   }
 
@@ -50,28 +52,26 @@ class _AutorizacionesPageState extends State<AutorizacionesPage> {
     // Agrega más rutas de imágenes según sea necesario
   ];
 
-  _obtenerListAuths(String tipoDoc, String numDoc) async {
-    AuthUsuarioServicio sListAuthUsuario = AuthUsuarioServicio();
+  _obtenerListAuths(String tipoDoc, String numDoc, int? idAccionPadre) async {
+    // AuthUsuarioServicio sListAuthUsuario = AuthUsuarioServicio();
 
     setState(() {
       status = StatusListaAuthUsuarios.progress;
     });
+    _usuario = Provider.of<UsuarioProvider>(context, listen: false).usuario;
+    final accionesFiltradas = idAccionPadre != null ? _usuario.accionesId.where((accion) => accion.accionPredecesora == idAccionPadre).toList() : _usuario.accionesId;
+    autLisModel.authAcciones = accionesFiltradas;
 
-    autLisModel = await sListAuthUsuario.listarAuthsUsuario(tipoDoc, numDoc);
-
-    if (autLisModel.rpta != "0") {
+    if (autLisModel.authAcciones.isEmpty) {
       setState(() {
         status = StatusListaAuthUsuarios.failure;
       });
       return;
     }
 
-    if (autLisModel.rpta == "0") {
-      setState(() {
-        status = StatusListaAuthUsuarios.success;
-      });
-      return;
-    }
+    setState(() {
+      status = StatusListaAuthUsuarios.success;
+    });
   }
 
   bool _hayConexion() {
@@ -120,10 +120,7 @@ class _AutorizacionesPageState extends State<AutorizacionesPage> {
 
           if (status == StatusListaAuthUsuarios.success) {
             return RefreshIndicator(
-              onRefresh: () => _obtenerListAuths(
-                 usuarioProvider.usuario.tipoDoc,
-                 usuarioProvider.usuario.numDoc,
-              ),
+              onRefresh: () => _obtenerListAuths(usuarioProvider.usuario.tipoDoc, usuarioProvider.usuario.numDoc, widget.AccionPadre!.id),
               color: AppColors.mainBlueColor,
               child: Container(
                 padding: const EdgeInsets.all(8),
@@ -142,9 +139,18 @@ class _AutorizacionesPageState extends State<AutorizacionesPage> {
                       // color: AppColors.greyColor,
                       child: InkWell(
                         onTap: () {
-                          final authIdModel = Provider.of<AuthIdModel>(context, listen: false);
-                          authIdModel.updateAuthData(authAccion.id, authAccion.accion);
-                          Navigator.of(context).pushNamed('listarSubAutorizaciones');
+                          if (authAccion.accion == "Documentos BackOffice") {
+                            Navigator.of(context).pushNamed('irListaDocsBacko');
+                            return;
+                          }
+                          // Donde navegas al hijo:
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => SubAutorizacionesPage(
+                                AccionPadre: authAccion, // 👈 se pasa directo
+                              ),
+                            ),
+                          );
                         },
                         child: Padding(
                           padding: const EdgeInsets.all(6.0), // Espaciado dentro del Card
@@ -156,10 +162,30 @@ class _AutorizacionesPageState extends State<AutorizacionesPage> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    Image.asset(
-                                      authAccion.icono.isNotEmpty == true ? 'assets/images/${authAccion.icono}.png' : 'assets/images/default_icon.png',
-                                      height: 60,
-                                    ),
+                                    authAccion.icono.isNotEmpty == true
+                                        ? (authAccion.icono.startsWith('http')
+                                            ? Image.network(
+                                                authAccion.icono,
+                                                height: 60,
+                                                width: 60,
+                                                errorBuilder: (context, error, stackTrace) => const Icon(Icons.description, size: 60, color: AppColors.mainBlueColor),
+                                                loadingBuilder: (context, child, loadingProgress) {
+                                                  if (loadingProgress == null) return child;
+                                                  return const SizedBox(
+                                                    width: 60,
+                                                    height: 60,
+                                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                                  );
+                                                },
+                                              )
+                                            : Image.asset(
+                                                'assets/images/${authAccion.icono}.png',
+                                                height: 60,
+                                              ))
+                                        : Image.asset(
+                                            'assets/images/default_icon.png',
+                                            height: 60,
+                                          ),
                                     const SizedBox(height: 8),
                                     Text(
                                       authAccion.accion,
@@ -201,10 +227,7 @@ class _AutorizacionesPageState extends State<AutorizacionesPage> {
 
           if (status == StatusListaAuthUsuarios.failure) {
             return RefreshIndicator(
-              onRefresh: () => _obtenerListAuths(
-                usuarioProvider.usuario.tipoDoc,
-                usuarioProvider.usuario.numDoc,
-              ),
+              onRefresh: () => _obtenerListAuths(usuarioProvider.usuario.tipoDoc, usuarioProvider.usuario.numDoc, widget.AccionPadre!.id),
               color: AppColors.mainBlueColor,
               child: ListView(
                 children: [

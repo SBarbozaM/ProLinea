@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:embarques_tdp/src/models/usuario.dart';
+
 AuthUsuario authUsuarioFromJson(String str) => AuthUsuario.fromJson(json.decode(str));
 
 String authUsuarioToJson(AuthUsuario data) => json.encode(data.toJson());
@@ -9,7 +11,7 @@ class AuthUsuario {
   String mensaje;
   String tipoDoc;
   String numDoc;
-  List<AuthAccione> authAcciones;
+  List<AccionId> authAcciones;
 
   AuthUsuario({
     required this.rpta,
@@ -24,7 +26,7 @@ class AuthUsuario {
         mensaje: json["mensaje"],
         tipoDoc: json["tipoDoc"],
         numDoc: json["numDoc"],
-        authAcciones: List<AuthAccione>.from(json["auth_acciones"].map((x) => AuthAccione.fromJson(x))),
+        authAcciones: List<AccionId>.from(json["auth_acciones"].map((x) => AccionId.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {
@@ -55,7 +57,7 @@ class AuthAccione {
         id: json["id"],
         accion: json["accion"],
         orden: json["orden"],
-        pendientes: json["pendientes"],
+        pendientes: json["pendientes"] ?? 0,
         icono: json["icono"],
       );
 

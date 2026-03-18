@@ -3,12 +3,15 @@ import 'dart:convert';
 
 import 'package:embarques_tdp/main.dart';
 import 'package:embarques_tdp/src/models/Autorizaciones/AuthUsuario.dart';
+import 'package:embarques_tdp/src/models/Login/colaboradorTipoDoc.dart';
+import 'package:embarques_tdp/src/models/colaborador/colaboradorTipoDoc.dart';
 import 'package:embarques_tdp/src/models/documento_vehiculo.dart';
 import 'package:embarques_tdp/src/models/jornada.dart';
 import 'package:embarques_tdp/src/models/pasajero.dart';
 import 'package:embarques_tdp/src/models/punto_embarque.dart';
 import 'package:embarques_tdp/src/models/viaje.dart';
 import 'package:embarques_tdp/src/models/viaje_domicilio/viaje_domicilio.dart';
+import 'package:embarques_tdp/src/services/colaborador/login_service_geus.dart';
 import 'package:embarques_tdp/src/services/embarques_sup_scaner_servicio.dart';
 import 'package:embarques_tdp/src/services/documento_servicio.dart';
 import 'package:embarques_tdp/src/services/pasajero_servicio.dart';
@@ -48,7 +51,13 @@ class UsuarioProvider extends ChangeNotifier {
 
   int? get tipoListSelected => _usuario.tipoListSelected;
   Usuario get usuario => _usuario;
-  
+
+  void asignarAcciones(List<AccionId> accionesId, List<String> acciones) {
+    _usuario.accionesId = accionesId;
+    _usuario.acciones = acciones;
+    notifyListeners();
+  }
+
   void setTipoListSelected(int value) {
     _usuario.tipoListSelected = value;
     notifyListeners();
@@ -101,30 +110,39 @@ class UsuarioProvider extends ChangeNotifier {
 
 /*** TIPO DE DOCUMENTO PROVIDER ***/
 class TipoDocumentoProvider extends ChangeNotifier {
-  List<TipoDocumento> _tiposDocumento = [];
+  // List<TipoDocumento> _tiposDocumento = [];
+  List<ColaboradorTipoDocv2> _tiposDocumentov2 = [];
 
   List<DocumentoVehiculo> _documentosVehiculo = [];
 
-  TipoDocumento _tipoDocumento = new TipoDocumento(codigo: "", nombre: "");
+  ColaboradorTipoDocv2 _tipoDocumento = new ColaboradorTipoDocv2(codigo: "", nombre: "", codigoPadre: "", selected: "");
 
-  List<TipoDocumento> get tiposDocumento {
-    return [..._tiposDocumento];
+  // List<TipoDocumento> get tiposDocumento {
+  //   return [..._tiposDocumento];
+  // }
+  List<ColaboradorTipoDocv2> get tiposDocumentov2 {
+    return [..._tiposDocumentov2];
   }
 
   List<DocumentoVehiculo> get documentosVehiculo {
     return [..._documentosVehiculo];
   }
 
-  TipoDocumento get tipoDocumento => _tipoDocumento;
+  ColaboradorTipoDocv2 get tipoDocumento => _tipoDocumento;
 
-  Future<void> tipoDocumentoActual({required TipoDocumento tipoDocumento}) async {
+  Future<void> tipoDocumentoActual({required ColaboradorTipoDocv2 tipoDocumento}) async {
     _tipoDocumento = tipoDocumento;
     notifyListeners();
   }
 
-  Future<void> obtenerTiposDocumento() async {
-    var servicio = TipoDocumentoServicio();
-    _tiposDocumento = await servicio.obtenerTiposDocumento();
+  // Future<void> obtenerTiposDocumento() async {
+  //   var servicio = TipoDocumentoServicio();
+  //   _tiposDocumento = await servicio.obtenerTiposDocumento();
+  //   notifyListeners();
+  // }
+  Future<void> obtenerTiposDocumentov2() async {
+    var servicio = LoginService();
+    _tiposDocumentov2 = await servicio.ObtenerTiposDocumentos();
     notifyListeners();
   }
 }
@@ -2341,7 +2359,6 @@ class docsIdModel extends ChangeNotifier {
     notifyListeners();
   }
 }
-
 
 class SubAuthActionModel {
   final String id;

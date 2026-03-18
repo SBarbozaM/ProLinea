@@ -1,5 +1,8 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:embarques_tdp/src/models/Autorizaciones/AuthUsuario.dart';
 import 'package:embarques_tdp/src/models/Autorizaciones/subAuth_model.dart';
+import 'package:embarques_tdp/src/models/usuario.dart';
+import 'package:embarques_tdp/src/pages/autorizaciones/list_docsAuth_page.dart';
 import 'package:embarques_tdp/src/services/list_sub_acciones_service.dart';
 
 import 'package:flutter/material.dart';
@@ -12,7 +15,8 @@ import '../../providers/providers.dart';
 enum statusListaSubAccionesAuth { initial, success, failure, progress }
 
 class SubAutorizacionesPage extends StatefulWidget {
-  const SubAutorizacionesPage({super.key});
+  final AccionId? AccionPadre;
+  const SubAutorizacionesPage({super.key, this.AccionPadre});
 
   @override
   State<SubAutorizacionesPage> createState() => _SubAutorizacionesPageState();
@@ -21,7 +25,7 @@ class SubAutorizacionesPage extends StatefulWidget {
 class _SubAutorizacionesPageState extends State<SubAutorizacionesPage> {
   //late AuthUsuarioServicio _authUsuarioServicio;
   statusListaSubAccionesAuth status = statusListaSubAccionesAuth.initial;
-
+  late Usuario _usuario;
   SubAuthUsuarioModel subAutLisModel = SubAuthUsuarioModel(
     rpta: "",
     mensaje: "",
@@ -38,31 +42,43 @@ class _SubAutorizacionesPageState extends State<SubAutorizacionesPage> {
     final usuarioProvider = Provider.of<UsuarioProvider>(context, listen: false);
     final authIdModel = Provider.of<AuthIdModel>(context, listen: false);
 
-    _obtenerListAuths(usuarioProvider.usuario.tipoDoc, usuarioProvider.usuario.numDoc, authIdModel.authId);
+    _obtenerListAuths(usuarioProvider.usuario.tipoDoc, usuarioProvider.usuario.numDoc, authIdModel.authId, widget.AccionPadre!.id);
   }
 
-  _obtenerListAuths(String tipoDoc, String numDoc, String idAhut) async {
+  _obtenerListAuths(String tipoDoc, String numDoc, String idAhut, int? idAccionPadre) async {
     SubAutorizacionesServicio sListSubAuthUsuario = SubAutorizacionesServicio();
 
     setState(() {
       status = statusListaSubAccionesAuth.progress;
     });
+    _usuario = Provider.of<UsuarioProvider>(context, listen: false).usuario;
+    final accionesFiltradas = idAccionPadre != null ? _usuario.accionesId.where((accion) => accion.accionPredecesora == idAccionPadre).toList() : _usuario.accionesId;
+    subAutLisModel.authSubAcciones = accionesFiltradas;
 
-    subAutLisModel = await sListSubAuthUsuario.listarsubAuthsUsuario(tipoDoc, numDoc, idAhut);
-
-    if (subAutLisModel.rpta != "0") {
+    // subAutLisModel = await sListSubAuthUsuario.listarsubAuthsUsuario(tipoDoc, numDoc, idAhut);
+    if (subAutLisModel.authSubAcciones.isEmpty) {
       setState(() {
         status = statusListaSubAccionesAuth.failure;
       });
       return;
     }
 
-    if (subAutLisModel.rpta == "0") {
-      setState(() {
-        status = statusListaSubAccionesAuth.success;
-      });
-      return;
-    }
+    setState(() {
+      status = statusListaSubAccionesAuth.success;
+    });
+    // if (subAutLisModel.rpta != "0") {
+    //   setState(() {
+    //     status = statusListaSubAccionesAuth.failure;
+    //   });
+    //   return;
+    // }
+
+    // if (subAutLisModel.rpta == "0") {
+    //   setState(() {
+    //     status = statusListaSubAccionesAuth.success;
+    //   });
+    //   return;
+    // }
   }
 
   bool _hayConexion() {
@@ -92,11 +108,11 @@ class _SubAutorizacionesPageState extends State<SubAutorizacionesPage> {
     return Scaffold(
       backgroundColor: Colors.grey.shade200,
       appBar: AppBar(
-        title: Text('${authIdModel.authAccion}'),
+        title: Text('${widget.AccionPadre!.accion}'),
         backgroundColor: AppColors.mainBlueColor,
         leading: IconButton(
           onPressed: () {
-            Navigator.of(context).pushNamedAndRemoveUntil('darAutorizaciones', (Route<dynamic> route) => false);
+            Navigator.pop(context);
           },
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
         ),
@@ -115,11 +131,7 @@ class _SubAutorizacionesPageState extends State<SubAutorizacionesPage> {
 
           if (status == statusListaSubAccionesAuth.success) {
             return RefreshIndicator(
-              onRefresh: () => _obtenerListAuths(
-                usuarioProvider.usuario.tipoDoc,
-                usuarioProvider.usuario.numDoc,
-                authIdModel.authId,
-              ),
+              onRefresh: () => _obtenerListAuths(usuarioProvider.usuario.tipoDoc, usuarioProvider.usuario.numDoc, authIdModel.authId, widget.AccionPadre!.id),
               color: AppColors.mainBlueColor,
               child: Container(
                 padding: const EdgeInsets.all(8),
@@ -138,9 +150,15 @@ class _SubAutorizacionesPageState extends State<SubAutorizacionesPage> {
                         trailing: const Icon(Icons.arrow_forward_ios_outlined, color: AppColors.mainBlueColor),
                         onTap: () {
                           final subauthIdModel = Provider.of<SubAuthIdModel>(context, listen: false);
-                          final subAuthAction = SubAuthActionModel(subAuthAccion.id, subAuthAccion.accion, subAuthAccion.orden);
+                          final subAuthAction = SubAuthActionModel(widget.AccionPadre!.id.toString(), subAuthAccion.accion, subAuthAccion.orden);
                           subauthIdModel.updateAuthAction(subAuthAction);
-                          Navigator.of(context).pushNamed('irListaDocsAuth');
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => ListDocsPage(
+                                subAuth: subAuthAccion, // 👈 se pasa directo
+                              ),
+                            ),
+                          );
                         },
                       ),
                     );
@@ -153,7 +171,7 @@ class _SubAutorizacionesPageState extends State<SubAutorizacionesPage> {
 
           if (status == statusListaSubAccionesAuth.failure) {
             return RefreshIndicator(
-              onRefresh: () => _obtenerListAuths(usuarioProvider.usuario.tipoDoc, usuarioProvider.usuario.numDoc, authIdModel.authId),
+              onRefresh: () => _obtenerListAuths(usuarioProvider.usuario.tipoDoc, usuarioProvider.usuario.numDoc, authIdModel.authId, widget.AccionPadre!.id),
               color: AppColors.mainBlueColor,
               child: ListView(
                 children: [

@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:embarques_tdp/src/models/datos_vinculacion.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
-
 
 import 'package:embarques_tdp/src/models/usuario.dart';
 
@@ -11,6 +11,7 @@ import '../connection/conexion.dart';
 
 class UsuarioServicio {
   final String _url = Conexion.apiUrl;
+  final String _urlLogin = Conexion.apiUrlLogin;
 
   final _usuarioStreamController = StreamController<Usuario>.broadcast();
 
@@ -58,18 +59,94 @@ class UsuarioServicio {
     return usuario;
   }
 
-  Future<Usuario> iniciarSesion(String tipoDoc, String numDoc, String contrasenia, String appVersion, String idDispositivo, String fechaCompilacion) async {
-    Map obj = {"Usu_tipoDoc": tipoDoc, "Usu_numDoc": numDoc, "Usu_password": contrasenia, "AppVersion": appVersion, "idDispositivo": idDispositivo, "fechaCompilacion": fechaCompilacion};
+  Future<Usuario> iniciarSesion(String tipoDoc, String numDoc, String contrasenia, String idPlataforma, String appVersion) async {
+    Usuario usuario = Usuario(
+      tipoDoc: "",
+      numDoc: "",
+      rpta: "-1",
+      clave: "",
+      usuarioId: "0",
+      apellidoPat: "",
+      apellidoMat: "",
+      nombres: "",
+      perfil: "",
+      codOperacion: "",
+      nombreOperacion: "",
+      equipo: "",
+    );
 
-    String str = json.encode(obj);
+    try {
+      // String tokenSeguridad = await obtenerToken();
 
-    final url = '${_url}loginGETP_v13';
+      final uri = Uri.parse('$_urlLogin/IniciarSesion');
 
-    final resp = await _procesarRespuestaPostFormData(Uri.parse(url), str);
+      final response = await http.post(
+        uri,
+        // headers: {
+        //   'Authorization': 'Bearer $tokenSeguridad',
+        //   'Content-Type': 'application/json',
+        // },
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          "idPlataforma": idPlataforma,
+          "tipoDoc": tipoDoc,
+          "nroDoc": numDoc,
+          "password": contrasenia,
+          "ip": "",
+          "appVersion": appVersion,
+        }),
+      );
 
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body);
+        final status = decoded['status'];
 
-    return resp;
+        if (status['isError'] == false) {
+          final data = decoded['data'];
+
+          usuario.rpta = "0";
+          usuario.usuarioId = data['id'].toString();
+          usuario.tipoDoc = data['tipoDoc'] ?? "";
+          usuario.numDoc = data['nroDoc'] ?? "";
+          usuario.nombres = data['nombres'] ?? "";
+          usuario.apellidoPat = data['apellidosPaternos'] ?? "";
+          usuario.apellidoMat = data['apellidosMaternos'] ?? "";
+          usuario.perfil = data['nombrePerfil'] ?? "";
+          usuario.idPerfil = data['idPerfil'].toString();
+          usuario.codOperacion = data['codOperacion'] ?? "";
+          usuario.nombreOperacion = data['nombreOperacion'] ?? "";
+          usuario.viajeEmp = data['viajeEmp'] ?? "";
+          usuario.unidadEmp = data['unidadEmp'] ?? "";
+          usuario.fechaEmp = data['fechaEmp'] ?? "";
+          usuario.domicilio = data['domicilio'] ?? "";
+          usuario.vinculacionActiva = (data['viajeEmp'] ?? '') == '' ? '0' : '1';
+        } else {
+          usuario.rpta = "-1";
+          usuario.mensaje = status['message'] ?? "Error al iniciar sesión";
+        }
+      } else {
+        usuario.rpta = "-1";
+        usuario.mensaje = "Error ${response.statusCode}";
+      }
+    } catch (e) {
+      print('Error iniciarSesion: $e');
+      usuario.rpta = "9";
+      usuario.mensaje = "Error de conexión";
+    }
+
+    return usuario;
   }
+  // Future<Usuario> iniciarSesion(String tipoDoc, String numDoc, String contrasenia, String appVersion, String idDispositivo, String fechaCompilacion) async {
+  //   Map obj = {"Usu_tipoDoc": tipoDoc, "Usu_numDoc": numDoc, "Usu_password": contrasenia, "AppVersion": appVersion, "idDispositivo": idDispositivo, "fechaCompilacion": fechaCompilacion};
+
+  //   String str = json.encode(obj);
+
+  //   final url = '${_url}loginGETP_v13';
+
+  //   final resp = await _procesarRespuestaPostFormData(Uri.parse(url), str);
+
+  //   return resp;
+  // }
 
   Future<Map<String, dynamic>> insertNoriUser(String tipoDoc, String numDoc, String tipoNoti, String plataforma, String imei, String oSuserId, String dataAux) async {
     var mapFormData = new Map<String, dynamic>();

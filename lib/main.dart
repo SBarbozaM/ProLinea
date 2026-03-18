@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:embarques_tdp/app.dart';
 import 'package:embarques_tdp/src/Bloc/unidadScaner/embarques_sup_scaner_bloc.dart';
 import 'package:embarques_tdp/src/Bloc/vincularInicio/vincular_inicio_bloc.dart';
@@ -34,7 +36,15 @@ bool _requireConsent = true;
 //bool sincronizar = true;
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)..badCertificateCallback = (cert, host, port) => true;
+  }
+}
+
 void main() async {
+  HttpOverrides.global = MyHttpOverrides();
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(

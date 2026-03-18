@@ -1,11 +1,12 @@
 import 'package:embarques_tdp/src/models/DocumentosLaborales/docsAcciones_model.dart';
+import 'package:embarques_tdp/src/models/usuario.dart';
 
 class DocsUsuario {
   String rpta;
   String mensaje;
   String tipoDoc;
   String numDoc;
-  List<DocsAccion> docsAcciones;
+  List<AccionId> docsAcciones;
 
   DocsUsuario({
     required this.rpta,
@@ -20,7 +21,18 @@ class DocsUsuario {
         mensaje: json["mensaje"],
         tipoDoc: json["tipoDoc"],
         numDoc: json["numDoc"],
-        docsAcciones: List<DocsAccion>.from(json["auth_acciones"].map((x) => DocsAccion.fromJson(x))),
+        docsAcciones: List<AccionId>.from(json["auth_acciones"].map((x) {
+          final doc = DocsAccion.fromJson(x);
+          return AccionId(
+            id: doc.id,
+            accion: doc.nombre,
+            orden: doc.orden.toString(),
+            pendientes: doc.pendientes,
+            icono: doc.icono,
+            accionPredecesora: 0,
+            url: '',
+          );
+        })),
       );
 
   Map<String, dynamic> toJson() => {

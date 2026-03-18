@@ -10,9 +10,11 @@ import 'package:embarques_tdp/src/connection/conexion.dart';
 import 'package:embarques_tdp/src/models/actual_version.dart';
 import 'package:embarques_tdp/src/models/punto_embarque.dart';
 import 'package:embarques_tdp/src/models/usuario-geop.dart';
+import 'package:embarques_tdp/src/pages/autorizaciones/autorizaciones_page.dart';
 import 'package:embarques_tdp/src/pages/checklist_mantenimiento/bloc/checklist_bloc.dart';
 import 'package:embarques_tdp/src/pages/inicio.dart';
 import 'package:embarques_tdp/src/services/actual_version.dart';
+import 'package:embarques_tdp/src/services/colaborador/login_service_geus.dart';
 import 'package:embarques_tdp/src/services/pasajero_servicio.dart';
 import 'package:embarques_tdp/src/services/usuario-geop.dart';
 import 'package:embarques_tdp/src/utils/Log.dart';
@@ -66,7 +68,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final OneSignalService oneSignalService = OneSignalService();
   Usuario usuarioActual = Usuario(
     tipoDoc: "",
@@ -105,11 +107,14 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _usuario = Provider.of<UsuarioProvider>(context, listen: false).usuario;
+
     if (_usuario.viajeEmp != "" && _usuario.idPerfil == '11') {
       context.read<JornadaBloc>().add(Listarjornadas(_usuario.viajeEmp));
       // SincronizarJornadasBD();
     }
+    _inicializar();
     // ObtieneViajeDomicilioRemote();
     actualizarViajeLocal();
     actualizarViajeLocalBOlsa();
@@ -178,6 +183,18 @@ class _HomePageState extends State<HomePage> {
     //   // print('data: \n${result.da}')
     //   reloadMainPage(context);
     // });
+  }
+
+  Future<void> _inicializar() async {
+    final usuarioProvider = Provider.of<UsuarioProvider>(context, listen: false);
+    final usuarioLog = usuarioProvider.usuario;
+
+    await LoginService().cargarAccionesMenu(
+      int.parse(usuarioLog.usuarioId ?? '0'),
+      usuarioProvider,
+    );
+
+    if (mounted) setState(() {}); // 👈 recarga el build al terminar
   }
 
   void reloadMainPage(BuildContext context) {
@@ -286,7 +303,15 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // _cargarPermisos(); // recarga al volver del segundo plano
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _timer.cancel();
     _timer2.cancel();
     super.dispose();
@@ -356,8 +381,14 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: Colors.grey.shade200,
           // backgroundColor: Colors.red.shade500,
           body: SafeArea(
+              child: RefreshIndicator(
+            // 👈 Va AQUÍ, envolviendo el CustomScrollView
+            onRefresh: () async {
+              await _inicializar(); // 👈 misma función del initState
+            },
             child: CustomScrollView(
               primary: false,
+              physics: const AlwaysScrollableScrollPhysics(),
               slivers: <Widget>[
                 SliverAppBar(
                   shape: Border(
@@ -521,9 +552,8 @@ class _HomePageState extends State<HomePage> {
                       //       ),
                       //     ),
                       //   ),
-
                       //VINCULAR CONDUCTOR BOLSA, INTERPROVINCIAL
-                      if (usuario.acciones.firstWhereOrNull((accion) => accion.toUpperCase() == "VERVINCULAR") != null && usuario.domicilio == '0')
+                      if (usuario.accionesId.firstWhereOrNull((accion) => accion.url.toUpperCase() == "VERVINCULAR") != null && usuario.domicilio == '0')
                         GestureDetector(
                           onTap: usuario.viajeEmp != "" && usuario.vinculacionActiva != "0"
                               ? () async {
@@ -625,9 +655,8 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         ),
-
                       //VINCULAR EMBARCADOR BOLSA
-                      if (usuario.acciones.firstWhereOrNull((accion) => accion.toUpperCase() == "VERVINCULAREMBARCADOR") != null && usuario.domicilio == '0')
+                      if (usuario.accionesId.firstWhereOrNull((accion) => accion.url.toUpperCase() == "VERVINCULAREMBARCADOR") != null && usuario.domicilio == '0')
                         GestureDetector(
                           onTap: () async {
                             _insertarEventoAnalytics('opc_${usuario.viajeEmp}' != "" ? "finalizar_embarque" : "iniciar_embarque", usuario, 'VERVINCULAREMBARCADOR');
@@ -729,9 +758,8 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         ),
-
                       //VINCULAR SUPERVISOR BOLSA
-                      if (usuario.acciones.firstWhereOrNull((accion) => accion.toUpperCase() == "VERVINCULARSUPERVISOR") != null && usuario.domicilio == '0')
+                      if (usuario.accionesId.firstWhereOrNull((accion) => accion.url.toUpperCase() == "VERVINCULARSUPERVISOR") != null && usuario.domicilio == '0')
                         GestureDetector(
                           onTap: () async {
                             _insertarEventoAnalytics('opc_${usuario.viajeEmp}' != "" ? "finalizar_embarque" : "iniciar_embarque", usuario, 'VERVINCULARSUPERVISOR');
@@ -835,9 +863,8 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         ),
-
                       //VINCULAR CONDUCTOR  DOMICILIO
-                      if (usuario.acciones.firstWhereOrNull((accion) => accion.toUpperCase() == "VERVINCULAR") != null && usuario.domicilio == '1')
+                      if (usuario.accionesId.firstWhereOrNull((accion) => accion.url.toUpperCase() == "VERVINCULAR") != null && usuario.domicilio == '1')
                         GestureDetector(
                           onTap: usuario.viajeEmp != "" && usuario.vinculacionActiva != "0"
                               ? () async {
@@ -1069,9 +1096,8 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         ),
-
                       //GESTIONAR EMBARQUE CONDUCTOR DOMICILIO
-                      if (usuario.acciones.firstWhereOrNull((accion) => accion.toUpperCase() == "GESTIONAREMBARQUECONDUCTOR") != null && usuario.domicilio == "1" && usuario.vinculacionActiva == "1")
+                      if (usuario.accionesId.firstWhereOrNull((accion) => accion.url.toUpperCase() == "GESTIONAREMBARQUECONDUCTOR") != null && usuario.domicilio == "1" && usuario.vinculacionActiva == "1")
                         GestureDetector(
                           onTap: () async {
                             _insertarEventoAnalytics('opc_embarque', usuario, 'GESTIONAREMBARQUECONDUCTOR/DOMICILIO');
@@ -1124,9 +1150,8 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         ),
-
                       //GESTIONAR EMBARQUE CONDUCTOR BOLSA
-                      if (usuario.acciones.firstWhereOrNull((accion) => accion.toUpperCase() == "GESTIONAREMBARQUECONDUCTOR") != null && usuario.domicilio == "0" && usuario.vinculacionActiva == "1")
+                      if (usuario.accionesId.firstWhereOrNull((accion) => accion.url.toUpperCase() == "GESTIONAREMBARQUECONDUCTOR") != null && usuario.domicilio == "0" && usuario.vinculacionActiva == "1")
                         GestureDetector(
                           onTap: () {
                             _insertarEventoAnalytics('opc_embarque', usuario, 'GESTIONAREMBARQUECONDUCTOR');
@@ -1183,9 +1208,8 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         ),
-
                       //GESTIONAR EMBARQUE SUPERVISOR
-                      if (usuario.acciones.firstWhereOrNull((accion) => accion.toUpperCase() == "GESTIONAREMBARQUESUPERVISOR") != null && usuario.domicilio == "0" && usuario.vinculacionActiva == "1")
+                      if (usuario.accionesId.firstWhereOrNull((accion) => accion.url.toUpperCase() == "GESTIONAREMBARQUESUPERVISOR") != null && usuario.domicilio == "0" && usuario.vinculacionActiva == "1")
                         GestureDetector(
                           onTap: () async {
                             _insertarEventoAnalytics('opc_embarque', usuario, 'GESTIONAREMBARQUESUPERVISOR');
@@ -1260,9 +1284,8 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         ),
-
                       //GESTIONAR EMBARQUE EMBARCADOR
-                      if (usuario.acciones.firstWhereOrNull((accion) => accion.toUpperCase() == "GESTIONAREMBARQUEEMBARCADOR") != null && usuario.domicilio == "0" && usuario.vinculacionActiva == "1")
+                      if (usuario.accionesId.firstWhereOrNull((accion) => accion.url.toUpperCase() == "GESTIONAREMBARQUEEMBARCADOR") != null && usuario.domicilio == "0" && usuario.vinculacionActiva == "1")
                         GestureDetector(
                           onTap: () async {
                             _insertarEventoAnalytics('opc_embarque', usuario, 'GESTIONAREMBARQUEEMBARCADOR');
@@ -1357,9 +1380,8 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         ),
-
                       //GESTIONAR EMBARQUE SUPERVISOR MULTIPLE
-                      if (usuario.acciones.firstWhereOrNull((accion) => accion.toUpperCase() == "GESTIONAREMBARQUEMULTIPLE") != null)
+                      if (usuario.accionesId.firstWhereOrNull((accion) => accion.url.toUpperCase() == "GESTIONAREMBARQUEMULTIPLE") != null)
                         GestureDetector(
                           onTap: () async {
                             _insertarEventoAnalytics('opc_embarque_multiples', usuario, 'GESTIONAREMBARQUEMULTIPLE');
@@ -1402,9 +1424,8 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         ),
-
                       //GESTIONAR MANIFIESTO SUPERVISOR
-                      if (usuario.acciones.firstWhereOrNull((accion) => accion.toUpperCase() == "VERMANIFIESTOS") != null)
+                      if (usuario.accionesId.firstWhereOrNull((accion) => accion.url.toUpperCase() == "VERMANIFIESTOS") != null)
                         GestureDetector(
                           onTap: () async {
                             _insertarEventoAnalytics('opc_manifiestos', usuario, 'VERMANIFIESTOS');
@@ -1451,9 +1472,8 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         ),
-
                       //GESTIONAR FINALIZAR VIAJE SUPERVISOR
-                      if (usuario.acciones.firstWhereOrNull((accion) => accion.toUpperCase() == "VERFINALIZARVIAJE") != null)
+                      if (usuario.accionesId.firstWhereOrNull((accion) => accion.url.toUpperCase() == "VERFINALIZARVIAJE") != null)
                         GestureDetector(
                           onTap: () async {
                             _insertarEventoAnalytics('opc_finalizar_viajes', usuario, 'VERFINALIZARVIAJE');
@@ -1497,9 +1517,8 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         ),
-
                       //GESTIONAR CONFIGURAR
-                      if (usuario.acciones.firstWhereOrNull((accion) => accion.toUpperCase() == "CONFIGURAR") != null)
+                      if (usuario.accionesId.firstWhereOrNull((accion) => accion.url.toUpperCase() == "CONFIGURAR") != null)
                         GestureDetector(
                           onTap: () {
                             //Navigator.pop(context);
@@ -1545,9 +1564,8 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         ),
-
                       //GESTIONAR JORNADA SUPERVISOR
-                      if (usuario.acciones.firstWhereOrNull((accion) => accion.toUpperCase() == "VERJORNADA") != null && usuario.unidadEmp != "" && usuario.viajeEmp != "")
+                      if (usuario.accionesId.firstWhereOrNull((accion) => accion.url.toUpperCase() == "VERJORNADA") != null && usuario.unidadEmp != "" && usuario.viajeEmp != "")
                         GestureDetector(
                           onTap: () async {
                             _insertarEventoAnalytics('opc_jornada', usuario, 'VERJORNADA');
@@ -1624,7 +1642,6 @@ class _HomePageState extends State<HomePage> {
                             },
                           ),
                         ),
-
                       //GESTIONAR VER FINALIZAR VIAJE CONDUCTOR BOLSA
                       // if (_usuario.acciones.firstWhereOrNull((accion) =>
                       //         accion.toUpperCase() ==
@@ -1691,9 +1708,8 @@ class _HomePageState extends State<HomePage> {
                       //       },
                       //     ),
                       //   ),
-
                       //GESTIONAR VERIFICAR UNIDAD : CONTROL DE SALIDAS
-                      if (usuario.acciones.firstWhereOrNull((accion) => accion.toUpperCase() == "VERVERIFICARUNIDAD") != null)
+                      if (usuario.accionesId.firstWhereOrNull((accion) => accion.url.toUpperCase() == "VERVERIFICARUNIDAD") != null)
                         GestureDetector(
                           onTap: () async {
                             _insertarEventoAnalytics('opc_salidas_llegadas', usuario, 'VERVERIFICARUNIDAD');
@@ -1743,9 +1759,8 @@ class _HomePageState extends State<HomePage> {
                             },
                           ),
                         ),
-
                       //GESTIONAR CONTROL ASISTENCIA
-                      if (usuario.acciones.firstWhereOrNull((accion) => accion.toUpperCase() == "VERCONTROLASISTENCIA") != null)
+                      if (usuario.accionesId.firstWhereOrNull((accion) => accion.url.toUpperCase() == "VERCONTROLASISTENCIA") != null)
                         GestureDetector(
                           onTap: () async {
                             _insertarEventoAnalytics('opc_asistencia', usuario, 'VERCONTROLASISTENCIA');
@@ -1795,9 +1810,8 @@ class _HomePageState extends State<HomePage> {
                             },
                           ),
                         ),
-
                       //GESTIONAR VERIFICAR UNIDAD : CONTROL DE INGRESO
-                      if (usuario.acciones.firstWhereOrNull((accion) => accion.toUpperCase() == "VERCONTROLINGRESO") != null)
+                      if (usuario.accionesId.firstWhereOrNull((accion) => accion.url.toUpperCase() == "VERCONTROLINGRESO") != null)
                         GestureDetector(
                           onTap: () async {
                             _insertarEventoAnalytics('opc_control_ingreso', usuario, 'VERCONTROLINGRESO');
@@ -1847,9 +1861,8 @@ class _HomePageState extends State<HomePage> {
                             },
                           ),
                         ),
-
                       //AGREGAR COLABORADOR
-                      if (usuario.acciones.firstWhereOrNull((accion) => accion.toUpperCase() == "VERAGREGAREDITARCOLABORADOR") != null)
+                      if (usuario.accionesId.firstWhereOrNull((accion) => accion.url.toUpperCase() == "VERAGREGAREDITARCOLABORADOR") != null)
                         GestureDetector(
                           onTap: () async {
                             _insertarEventoAnalytics('opc_agregar_personal', usuario, 'VERAGREGAREDITARCOLABORADOR');
@@ -1899,9 +1912,8 @@ class _HomePageState extends State<HomePage> {
                             },
                           ),
                         ),
-
                       //USUARIO GEOP - PADRON VEHICULAR
-                      if (usuario.acciones.firstWhereOrNull((accion) => accion.toUpperCase() == "VERPADRONVEHICULOGEOP") != null)
+                      if (usuario.accionesId.firstWhereOrNull((accion) => accion.url.toUpperCase() == "VERPADRONVEHICULOGEOP") != null)
                         GestureDetector(
                           onTap: () async {
                             _insertarEventoAnalytics('opc_padron_unidades', usuario, 'VERPADRONVEHICULOGEOP');
@@ -1965,13 +1977,11 @@ class _HomePageState extends State<HomePage> {
                             },
                           ),
                         ),
-
                       //USUARIO GEOP - PADRON QR UNIDAD
                       // if (usuario.acciones.firstWhereOrNull((accion) => accion.toUpperCase() == "VERFICHAVEHICULOGEOP") != null)
                       // GestureDetector(
                       //   onTap: () async {
                       //     _insertarEventoAnalytics('opc_qr_unidad', usuario, 'VERFICHAVEHICULOGEOP');
-
                       //     Navigator.of(context).pushNamedAndRemoveUntil('padronVehicularGeop', (Route<dynamic> route) => false);
                       //   },
                       //   child: BlocBuilder<JornadaBloc, JornadaState>(
@@ -2017,9 +2027,8 @@ class _HomePageState extends State<HomePage> {
                       //     },
                       //   ),
                       // ),
-
                       //CHECKLIST MANTENIMIENTO
-                      if (usuario.acciones.firstWhereOrNull((accion) => accion.toUpperCase() == "VERCHECKLISTMANTENIMIENTO") != null)
+                      if (usuario.accionesId.firstWhereOrNull((accion) => accion.url.toUpperCase() == "VERCHECKLISTMANTENIMIENTO") != null)
                         GestureDetector(
                           onTap: () async {
                             _insertarEventoAnalytics('opc_checklist', usuario, 'VERCHECKLISTMANTENIMIENTO');
@@ -2069,8 +2078,7 @@ class _HomePageState extends State<HomePage> {
                             },
                           ),
                         ),
-
-                      if (usuario.acciones.firstWhereOrNull((accion) => accion.toUpperCase() == "VERORDENSERVICIOPORTALLER") != null)
+                      if (usuario.accionesId.firstWhereOrNull((accion) => accion.url.toUpperCase() == "VERORDENSERVICIOPORTALLER") != null)
                         GestureDetector(
                           onTap: () async {
                             _insertarEventoAnalytics('opc_orden_servicio_taller', usuario, 'VERORDENSERVICIOPORTALLER');
@@ -2120,8 +2128,7 @@ class _HomePageState extends State<HomePage> {
                             },
                           ),
                         ),
-
-                      if (usuario.acciones.firstWhereOrNull((accion) => accion.toUpperCase() == "VERORDENSERVICIOTODOSLOSTALLERES") != null)
+                      if (usuario.accionesId.firstWhereOrNull((accion) => accion.url.toUpperCase() == "VERORDENSERVICIOTODOSLOSTALLERES") != null)
                         GestureDetector(
                           onTap: () async {
                             _insertarEventoAnalytics('opc_orden_servicio', usuario, 'VERORDENSERVICIOTODOSLOSTALLERES');
@@ -2171,66 +2178,64 @@ class _HomePageState extends State<HomePage> {
                             },
                           ),
                         ),
-
                       //CHECKLIST MANTENIMIENTO
-                      //if (usuario.acciones.firstWhereOrNull((accion) => accion.toUpperCase() == "VERCHECKLIST") != null)
-                      GestureDetector(
-                        onTap: () async {
-                          _insertarEventoAnalytics('opc_checklist', usuario, 'VERCHECKLIST');
-                          context.read<ChecklistBloc>().add(
-                                ListarTipoCheckListEvent(
-                                  tDoc: usuario.tipoDoc,
-                                  nDoc: usuario.numDoc,
+                      if (usuario.accionesId.firstWhereOrNull((accion) => accion.url.toUpperCase() == "VERCHECKLIST") != null)
+                        GestureDetector(
+                          onTap: () async {
+                            _insertarEventoAnalytics('opc_checklist', usuario, 'VERCHECKLIST');
+                            context.read<ChecklistBloc>().add(
+                                  ListarTipoCheckListEvent(
+                                    tDoc: usuario.tipoDoc,
+                                    nDoc: usuario.numDoc,
+                                  ),
+                                );
+                            Navigator.of(context).pushNamedAndRemoveUntil('checklistMain', (Route<dynamic> route) => false);
+                          },
+                          child: BlocBuilder<JornadaBloc, JornadaState>(
+                            builder: (context, state) {
+                              return Card(
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(20),
+                                  ),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      width: MediaQuery.of(context).size.width * 0.35,
+                                      height: MediaQuery.of(context).size.width * 0.32,
+                                      child: const FittedBox(
+                                        child: ImagesCardHome(image: "assets/images/qr_unidad_geop.png"),
+                                      ),
+                                    ),
+                                    Container(
+                                      width: MediaQuery.of(context).size.width * 0.35,
+                                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFe42313),
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      alignment: Alignment.center,
+                                      child: const Text(
+                                        "CheckList",
+                                        style: TextStyle(
+                                          color: AppColors.whiteColor,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               );
-                          Navigator.of(context).pushNamedAndRemoveUntil('checklistMain', (Route<dynamic> route) => false);
-                        },
-                        child: BlocBuilder<JornadaBloc, JornadaState>(
-                          builder: (context, state) {
-                            return Card(
-                              shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(20),
-                                ),
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  SizedBox(
-                                    width: MediaQuery.of(context).size.width * 0.35,
-                                    height: MediaQuery.of(context).size.width * 0.32,
-                                    child: const FittedBox(
-                                      child: ImagesCardHome(image: "assets/images/qr_unidad_geop.png"),
-                                    ),
-                                  ),
-                                  Container(
-                                    width: MediaQuery.of(context).size.width * 0.35,
-                                    padding: const EdgeInsets.symmetric(horizontal: 5),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFe42313),
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    alignment: Alignment.center,
-                                    child: const Text(
-                                      "CheckList",
-                                      style: TextStyle(
-                                        color: AppColors.whiteColor,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
+                            },
+                          ),
                         ),
-                      ),
-
                       //VER PROGRAMACIÓN
-                      if (usuario.acciones.firstWhereOrNull((accion) => accion.toUpperCase() == "VERPROGRAMACION") != null)
+                      if (usuario.accionesId.firstWhereOrNull((accion) => accion.url.toUpperCase() == "VERPROGRAMACION") != null)
                         GestureDetector(
                           onTap: () async {
                             _insertarEventoAnalytics('opc_programacion', usuario, 'VERPROGRAMACION');
@@ -2280,14 +2285,21 @@ class _HomePageState extends State<HomePage> {
                             },
                           ),
                         ),
-
                       //GESTIONAR DAR AUTORIZACION
-                      if (usuario.acciones.firstWhereOrNull((accion) => accion.toUpperCase() == "DARAUTORIZACION") != null)
+                      if (usuario.accionesId.firstWhereOrNull((accion) => accion.url.toUpperCase() == "DARAUTORIZACION") != null)
                         GestureDetector(
                           onTap: () async {
                             _insertarEventoAnalytics('opc_autorizaciones', usuario, 'DARAUTORIZACION');
-
-                            Navigator.of(context).pushNamedAndRemoveUntil('darAutorizaciones', (Route<dynamic> route) => false);
+                            final accion = _usuario.accionesId.firstWhereOrNull(
+                              (accion) => accion.url.toUpperCase() == "DARAUTORIZACION",
+                            );
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => AutorizacionesPage(
+                                  AccionPadre: accion, // 👈 se pasa directo
+                                ),
+                              ),
+                            );
                           },
                           child: BlocBuilder<JornadaBloc, JornadaState>(
                             builder: (context, state) {
@@ -2332,90 +2344,89 @@ class _HomePageState extends State<HomePage> {
                             },
                           ),
                         ),
-                      // if (usuario.acciones.firstWhereOrNull((accion) => accion.toUpperCase() == "VERDOCLABORALES") != null)
-                      GestureDetector(
-                        onTap: () async {
-                          final auth = LocalAuthentication();
+                      if (usuario.accionesId.firstWhereOrNull((accion) => accion.url.toUpperCase() == "VERDOCLABORALES") != null)
+                        GestureDetector(
+                          onTap: () async {
+                            final auth = LocalAuthentication();
 
-                          final canCheck = await auth.canCheckBiometrics;
-                          final isSupported = await auth.isDeviceSupported();
+                            final canCheck = await auth.canCheckBiometrics;
+                            final isSupported = await auth.isDeviceSupported();
 
-                          if (!canCheck && !isSupported) {
-                            await mostrarAvisoSeguridad(context);
-                            return;
-                          }
-
-                          try {
-                            final autorizado = await auth.authenticate(
-                              localizedReason: 'Confirma tu identidad',
-                              authMessages: <AuthMessages>[
-                                AndroidAuthMessages(
-                                  signInTitle: 'Autenticación requerida',
-                                  cancelButton: 'Cancelar',
-                                ),
-                                IOSAuthMessages(
-                                  cancelButton: 'Cancelar',
-                                ),
-                              ],
-                            );
-
-                            if (autorizado && context.mounted) {
-                              Navigator.of(context).pushNamedAndRemoveUntil(
-                                'verDocLaborales',
-                                (route) => false,
-                              );
+                            if (!canCheck && !isSupported) {
+                              await mostrarAvisoSeguridad(context);
+                              return;
                             }
-                          } catch (_) {
-                            // 🔴 Aquí entra cuando NO hay bloqueo configurado
-                            await mostrarAvisoSeguridad(context);
-                          }
-                        },
-                        child: BlocBuilder<JornadaBloc, JornadaState>(
-                          builder: (context, state) {
-                            return Card(
-                              shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(20),
-                                ),
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  SizedBox(
-                                    width: MediaQuery.of(context).size.width * 0.35,
-                                    height: MediaQuery.of(context).size.width * 0.32,
-                                    child: const FittedBox(
-                                      child: ImagesCardHome(image: "assets/images/icon_documentos.png"),
-                                    ),
+
+                            try {
+                              final autorizado = await auth.authenticate(
+                                localizedReason: 'Confirma tu identidad',
+                                authMessages: <AuthMessages>[
+                                  AndroidAuthMessages(
+                                    signInTitle: 'Autenticación requerida',
+                                    cancelButton: 'Cancelar',
                                   ),
-                                  Container(
-                                    width: MediaQuery.of(context).size.width * 0.35,
-                                    padding: const EdgeInsets.symmetric(horizontal: 5),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFe42313),
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    alignment: Alignment.center,
-                                    child: const Text(
-                                      "Docs. Laborales",
-                                      style: TextStyle(
-                                        color: AppColors.whiteColor,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
+                                  IOSAuthMessages(
+                                    cancelButton: 'Cancelar',
                                   ),
                                 ],
-                              ),
-                            );
-                          },
-                        ),
-                      ),
+                              );
 
+                              if (autorizado && context.mounted) {
+                                Navigator.of(context).pushNamedAndRemoveUntil(
+                                  'verDocLaborales',
+                                  (route) => false,
+                                );
+                              }
+                            } catch (_) {
+                              // 🔴 Aquí entra cuando NO hay bloqueo configurado
+                              await mostrarAvisoSeguridad(context);
+                            }
+                          },
+                          child: BlocBuilder<JornadaBloc, JornadaState>(
+                            builder: (context, state) {
+                              return Card(
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(20),
+                                  ),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      width: MediaQuery.of(context).size.width * 0.35,
+                                      height: MediaQuery.of(context).size.width * 0.32,
+                                      child: const FittedBox(
+                                        child: ImagesCardHome(image: "assets/images/icon_documentos.png"),
+                                      ),
+                                    ),
+                                    Container(
+                                      width: MediaQuery.of(context).size.width * 0.35,
+                                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFe42313),
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      alignment: Alignment.center,
+                                      child: const Text(
+                                        "Docs. Laborales",
+                                        style: TextStyle(
+                                          color: AppColors.whiteColor,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
                       //PLATAFORMA DE SOPORTE TI
-                      if (usuario.acciones.firstWhereOrNull((accion) => accion.toUpperCase() == "VERPLATAFORMASOPORTETI") != null)
+                      if (usuario.accionesId.firstWhereOrNull((accion) => accion.url.toUpperCase() == "VERPLATAFORMASOPORTETI") != null)
                         GestureDetector(
                           onTap: () async {
                             _insertarEventoAnalytics('opc_soporte_ti', usuario, 'VERPLATAFORMASOPORTETI');
@@ -2471,10 +2482,20 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                       //VER INCIDENTES HISTORIAL
-                      if (_usuario.acciones.firstWhereOrNull((accion) => accion.toUpperCase() == "VERINCIDENTES") != null)
+                      if (_usuario.accionesId.firstWhereOrNull((accion) => accion.url.toUpperCase() == "VERINCIDENTES") != null)
                         GestureDetector(
                           onTap: () async {
-                            Navigator.of(context).pushNamedAndRemoveUntil('irVerIncidentes', (Route<dynamic> route) => false);
+                            final accion = _usuario.accionesId.firstWhereOrNull(
+                              (accion) => accion.url.toUpperCase() == "VERINCIDENTES",
+                            );
+                            Navigator.of(context).pushNamedAndRemoveUntil(
+                              'irVerIncidentes',
+                              (Route<dynamic> route) => false,
+                              arguments: {
+                                'idAccion': accion?.id, // 👈 el id de la acción padre
+                                'nombre': accion?.accion, // 👈 cualquier otro dato que necesites
+                              },
+                            );
                           },
                           child: BlocBuilder<JornadaBloc, JornadaState>(
                             builder: (context, state) {
@@ -2519,8 +2540,7 @@ class _HomePageState extends State<HomePage> {
                             },
                           ),
                         ),
-
-                      //if (_usuario.acciones.firstWhereOrNull((accion) => accion.toUpperCase() == "COPILOTO VIRTUAL") != null)
+                      //if (_usuario.accionesId.firstWhereOrNull((accion) => accion.url.toUpperCase() == "COPILOTO VIRTUAL") != null)
                       // GestureDetector(
                       //   onTap: () async {
                       //     //await verificarVersion();
@@ -2569,7 +2589,7 @@ class _HomePageState extends State<HomePage> {
                       //     },
                       //   ),
                       // ),
-                      if (_usuario.acciones.firstWhereOrNull((accion) => accion.toUpperCase() == "VERRUTAS") != null)
+                      if (_usuario.accionesId.firstWhereOrNull((accion) => accion.url.toUpperCase() == "VERRUTAS") != null)
                         GestureDetector(
                           onTap: () async {
                             Navigator.of(context).pushNamedAndRemoveUntil('irVerRutas', (Route<dynamic> route) => false);
@@ -2622,7 +2642,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ],
             ),
-          ),
+          )),
           floatingActionButton: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [

@@ -36,9 +36,20 @@ workflows:
             --create
           keychain add-certificates
           xcode-project use-profiles
-      
+
       - name: Build iOS App
         script: |
+          PROFILE_FILE=$(ls ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision | head -1)
+          echo "Profile file: $PROFILE_FILE"
+          
+          # Use openssl instead of security cms
+          openssl smime -inform DER -verify -noverify -in "$PROFILE_FILE" -out /tmp/profile_decoded.plist 2>/dev/null
+          echo "OpenSSL decode exit: $?"
+          cat /tmp/profile_decoded.plist | head -20
+          
+          NAME=$(/usr/libexec/PlistBuddy -c "Print :Name" /tmp/profile_decoded.plist 2>/dev/null)
+          echo "Profile Name: $NAME"
+          
           cat > /tmp/ExportOptions.plist << EOF
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -46,15 +57,29 @@ workflows:
           <dict>
             <key>method</key>
             <string>app-store</string>
+            <key>teamID</key>
+            <string>W4DR9N95K2</string>
+            <key>signingStyle</key>
+            <string>manual</string>
             <key>provisioningProfiles</key>
             <dict>
               <key>pe.linea.lineaempresa</key>
-              <string>CodeMagic</string>
+              <string>$NAME</string>
             </dict>
           </dict>
           </plist>
           EOF
+          
+          echo "=== ExportOptions.plist ==="
+          cat /tmp/ExportOptions.plist
+          
           flutter build ipa --release --export-options-plist=/tmp/ExportOptions.plist
+          
+      - name: Verify IPA exists
+        script: |
+          echo "Searching for IPA files..."
+          find "$CM_BUILD_DIR" -name "*.ipa" -type f
+          ls -la build/ios/ipa/ || echo "Directory not found"
 
       - name: Publish to TestFlight
         script: |

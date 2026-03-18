@@ -1,6 +1,9 @@
 import 'package:embarques_tdp/src/pages/Incidentes/incidentes_page.dart';
 import 'package:embarques_tdp/src/pages/autorizaciones/autorizacion_1.dart';
 import 'package:embarques_tdp/src/pages/autorizaciones/autorizaciones_page.dart';
+import 'package:embarques_tdp/src/pages/autorizaciones/backo/documento_page.dart';
+import 'package:embarques_tdp/src/pages/autorizaciones/backo/opciones_page.dart';
+import 'package:embarques_tdp/src/pages/autorizaciones/backo/tiposDocumentos_page.dart';
 import 'package:embarques_tdp/src/pages/autorizaciones/list_docsAuth_page.dart';
 import 'package:embarques_tdp/src/pages/autorizaciones/sub_subAcciones_auth_page.dart';
 import 'package:embarques_tdp/src/pages/checklist_mantenimiento/main/checklista_main.dart';
@@ -91,14 +94,21 @@ Map<String, WidgetBuilder> obtenerRutas() {
     'ordenServicioTalleres': (BuildContext context) => const ScanUnidadOrdenServicioJefaturaPage(),
     'listarProgramacion': (BuildContext context) => const ProgramacionPage(),
     'darAutorizaciones': (BuildContext context) => const AutorizacionesPage(), //  NotificationPage(),
-    'verDocLaborales': (BuildContext context) => const DocumentosLaboralesPage(), //  NotificationPage(),
     'listarSubAutorizaciones': (BuildContext context) => const SubAutorizacionesPage(),
     'irListaDocsAuth': (BuildContext context) => const ListDocsPage(),
+    //BACKOFFICE
+    'irListaDocsBacko': (BuildContext context) => const TiposDocumentosPage(),
+    'opcionesDocumento': (context) => const OpcionesDocumentoPage(),
+    'listaDocumentosBacko': (context) => const ListaDocumentosBackoPage(),
+    //--------
     'irToggle': (BuildContext context) => const TriStateToggleSwitch(),
     'irVerIncidentes': (BuildContext context) => IncidentesPage(),
     'irVerRutas': (BuildContext context) => const RutaListPage(),
+    //Documentos Laborales
+    'verDocLaborales': (BuildContext context) => const DocumentosLaboralesPage(), //  NotificationPage(),
     'documentosDetalle': (_) => const DocumentosDetallePage(),
     'documento-viewer': (_) => const DocumentoViewerPage(),
+    //------
     // 'irCopiloto': (BuildContext context) => MapaPage(), //SpeedTracker  GeocercaListPage(),
     // 'irListaGeocerecas': (BuildContext context) => GeocercaListPage(), //SpeedTracker  GeocercaListPage(),
     // 'irCopiAndriod': (BuildContext context) => SpeedTrackingPage(), //SpeedTracker  GeocercaListPage(),

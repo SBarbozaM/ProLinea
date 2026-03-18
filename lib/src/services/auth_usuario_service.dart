@@ -4,9 +4,6 @@ import 'package:embarques_tdp/src/models/Autorizaciones/AuthUsuario.dart';
 import 'package:http/http.dart' as http;
 
 import '../connection/conexion.dart';
-import '../models/ruta.dart';
-import '../models/usuario.dart';
-import '../models/viaje.dart';
 
 class AuthUsuarioServicio {
   String _url = Conexion.apiUrl;

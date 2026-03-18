@@ -54,7 +54,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '829412782255',
     projectId: 'prolinea-c54d2',
     storageBucket: 'prolinea-c54d2.appspot.com',
-    iosBundleId: 'com.linea.ProLinea',
+    iosBundleId: 'com.example.embarquesTdp',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(

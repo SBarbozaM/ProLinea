@@ -1,15 +1,9 @@
 import 'dart:convert';
-import 'package:embarques_tdp/src/models/Autorizaciones/AuthUsuario.dart';
 import 'package:embarques_tdp/src/models/Autorizaciones/doc_Auth_model.dart';
-import 'package:embarques_tdp/src/models/Autorizaciones/subAuth_model.dart';
 
 import 'package:http/http.dart' as http;
 
 import '../connection/conexion.dart';
-import '../models/ruta.dart';
-import '../models/usuario.dart';
-import '../models/viaje.dart';
-
 class ListDocsAuthServicio {
   String _url = Conexion.apiUrl;
 

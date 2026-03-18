@@ -228,13 +228,23 @@ class AppDatabase {
       sincronizado TEXT
     )
     ''');
-
     await db.execute('''
     CREATE TABLE $tablaAccionUsuario(
       ID INTEGER PRIMARY KEY AUTOINCREMENT,
-      accion TEXT
+      idAccion INTEGER,
+      accion TEXT,
+      orden TEXT,
+      pendientes INTEGER,
+      icono TEXT
     )
     ''');
+
+    // await db.execute('''
+    // CREATE TABLE $tablaAccionUsuario(
+    //   ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    //   accion TEXT
+    // )
+    // ''');
 
     await db.execute('''
     CREATE TABLE $tablaTripulante(
@@ -558,10 +568,8 @@ class AppDatabase {
     await db.delete(tablaUsuario);
     await db.delete(tablaAccionUsuario);
 
-    //Verificamos que no exista el usuario registrado
-    // List<Map<String, dynamic>> existeUsuario = await db.query(tablaUsuario, where: "tipoDoc = ? and numDoc = ?", whereArgs: [usuario.tipoDoc.trim(), usuario.numDoc.trim()]);
-
-    await db.insert(tablaUsuario, usuario.toMapDatabase());
+   await db.insert(tablaUsuario, usuario.toMapDatabase());
+   
   }
 
   // Insertar una geocerca

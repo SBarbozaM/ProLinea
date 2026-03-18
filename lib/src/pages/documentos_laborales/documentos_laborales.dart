@@ -1,4 +1,5 @@
 import 'package:embarques_tdp/src/models/DocumentosLaborales/docsAcciones_model.dart';
+import 'package:embarques_tdp/src/models/usuario.dart';
 import 'package:embarques_tdp/src/pages/documentos_laborales/helper.dart';
 import 'package:embarques_tdp/src/services/documentos_laborales_service.dart';
 import 'package:flutter/material.dart';
@@ -192,7 +193,7 @@ class _DocumentosLaboralesPageState extends State<DocumentosLaboralesPage> {
 }
 
 class DocCardGlass extends StatelessWidget {
-  final DocsAccion doc;
+  final AccionId doc;
 
   const DocCardGlass({Key? key, required this.doc}) : super(key: key);
 
@@ -204,8 +205,8 @@ class DocCardGlass extends StatelessWidget {
           final result = await Navigator.of(context).pushNamed(
             'documentosDetalle',
             arguments: {
-              'idAccion': doc.orden,
-              'descripcion': doc.nombre,
+              'idAccion': int.tryParse(doc.orden) ?? 0,
+              'descripcion': doc.accion,
             },
           );
 
@@ -244,7 +245,7 @@ class DocCardGlass extends StatelessWidget {
               // TEXTO
               Expanded(
                 child: Text(
-                  doc.nombre,
+                  doc.accion,
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,

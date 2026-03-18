@@ -38,11 +38,11 @@ class Usuario {
     mensaje = json['mensaje'] ?? '';
     tipoDoc = json['tipoDoc'] ?? '';
     numDoc = json['numDoc'] ?? '';
-    usuarioId = json["idUsuario"] == null ? '0' : json["idUsuario"].toString();
+    usuarioId = json["usuarioId"] == null ? '0' : json["usuarioId"].toString();
     apellidoPat = json['apellidoPat'] ?? '';
     apellidoMat = json['apellidoMat'] ?? '';
     nombres = json['nombres'] ?? '';
-    perfil = json['perfil'] ?? '';
+    perfil = json['nombrePerfil'] ?? '';
     codOperacion = json['codOperacion'] ?? '';
     nombreOperacion = json['nombreOperacion'] ?? '';
     viajeEmp = json['viajeEmp'] ?? '';
@@ -50,7 +50,7 @@ class Usuario {
     placaEmp = json['placaEmp'] ?? '';
     fechaEmp = json['fechaEmp'] ?? '';
     domicilio = json['domicilio'] ?? '';
-    idPerfil = json["idperfil"] == null ? '' : json["idperfil"].toString();
+    idPerfil = json["idPerfil"] == null ? '' : json["idPerfil"].toString();
     vinculacionActiva = (json['viajeEmp'] ?? '') == '' ? '0' : '1';
 
     Log = json["log"] ?? '';
@@ -79,7 +79,7 @@ class Usuario {
   Usuario.fromJsonBDLocal(Map<String, dynamic> json) {
     tipoDoc = json['tipoDoc'];
     numDoc = json['numDoc'];
-    usuarioId = json["idUsuario"] == null ? '0' : json["idUsuario"].toString();
+    usuarioId = json["usuarioId"] == null ? '0' : json["usuarioId"].toString();
     apellidoPat = json['apellidoPat'];
     apellidoMat = json['apellidoMat'];
     nombres = json['nombres'];
@@ -114,7 +114,7 @@ class Usuario {
       'nombreOperacion': nombreOperacion,
       'viajeEmp': viajeEmp,
       "unidadEmp": unidadEmp,
-      "placaEmp": placaEmp,
+      "placaEmp": placaEmp, 
       "fechaEmp": fechaEmp,
       "domicilio": domicilio,
       "idperfil": idPerfil,
@@ -128,12 +128,43 @@ class Usuario {
     };
   }
 }
+
 class AccionId {
-  final String accion;
   final int id;
+  final String accion;
+  final String orden;
+  final int pendientes;
+  final String icono;
+  final String url;
+  final int accionPredecesora;
 
   AccionId({
-    required this.accion,
     required this.id,
+    required this.accion,
+    required this.orden,
+    required this.pendientes,
+    required this.icono,
+    required this.accionPredecesora,
+    required this.url,
   });
+
+   factory AccionId.fromJson(Map<String, dynamic> json) => AccionId(
+        id: json["id"] as int ?? 0,
+        accion: json["accion"] ?? json["nombre"],
+        orden: json["orden"] as String ?? "",
+        pendientes: json["pendientes"],
+        icono: json["icono"],
+        accionPredecesora: json["accionPredecesora"] ?? 0,
+        url: json["url"] ?? ""
+      );
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "accion": accion,
+        "orden": orden,
+        "pendientes": pendientes,
+        "icono": icono,
+        "accionPredecesora": accionPredecesora,
+        "url": url
+      };
 }

@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:embarques_tdp/src/connection/conexion.dart';
+import 'package:embarques_tdp/src/models/Login/colaboradorTipoDoc.dart';
 import 'package:embarques_tdp/src/models/datos_vinculacion.dart';
 import 'package:embarques_tdp/src/models/tipo_documento.dart';
 import 'package:embarques_tdp/src/models/viaje_domicilio/parada.dart';
@@ -10,6 +11,7 @@ import 'package:embarques_tdp/src/models/viaje_domicilio/paradero.dart';
 import 'package:embarques_tdp/src/models/viaje_domicilio/pasajero_domicilio.dart';
 import 'package:embarques_tdp/src/models/viaje_domicilio/viaje_domicilio.dart';
 import 'package:embarques_tdp/src/providers/providers.dart';
+import 'package:embarques_tdp/src/services/colaborador/login_service_geus.dart';
 import 'package:embarques_tdp/src/services/datos_app_servicio.dart';
 import 'package:embarques_tdp/src/services/viaje_servicio.dart';
 import 'package:embarques_tdp/src/utils/Log.dart';
@@ -67,7 +69,8 @@ class _LoginPageState extends State<LoginPage> {
   String _opcSeleccionadaTipoDoc = "-1";
   final String _tipoDocGuardado = "-1";
 
-  List<TipoDocumento> tiposDocumento = [];
+  // List<TipoDocumento> tiposDocumento = [];
+  List<ColaboradorTipoDocv2> tiposDocumento = [];
 
   @override
   void initState() {
@@ -94,14 +97,20 @@ class _LoginPageState extends State<LoginPage> {
 
   _init() async {
     _opcSeleccionadaTipoDoc = "-1";
-    await Provider.of<TipoDocumentoProvider>(context, listen: false).obtenerTiposDocumento();
+    await Provider.of<TipoDocumentoProvider>(context, listen: false).obtenerTiposDocumentov2();
+    // await Provider.of<TipoDocumentoProvider>(context, listen: false).obtenerTiposDocumento();
+
     setState(() {
-      tiposDocumento = Provider.of<TipoDocumentoProvider>(context, listen: false).tiposDocumento;
+      tiposDocumento = Provider.of<TipoDocumentoProvider>(context, listen: false).tiposDocumentov2;
       if (tiposDocumento.isNotEmpty) {
         if (_tipoDocGuardado != "-1" && _tipoDocGuardado != "") {
           _opcSeleccionadaTipoDoc = _tipoDocGuardado;
         } else {
-          _opcSeleccionadaTipoDoc = tiposDocumento.first.codigo;
+          final seleccionado = tiposDocumento.firstWhere(
+            (e) => e.selected == 'selected',
+            orElse: () => tiposDocumento[0],
+          );
+          _opcSeleccionadaTipoDoc = seleccionado.codigo;
         }
       }
     });
@@ -306,9 +315,8 @@ class _LoginPageState extends State<LoginPage> {
       _opcSeleccionadaTipoDoc,
       _numDocController.text,
       _contraseniaController.text,
+      AppData.idPlataforma,
       AppData.appVersion,
-      idDispositivo,
-      AppData.appFechaCompilacion,
     );
 
     Usuario usuarioTemporal = Usuario.empty();
@@ -419,6 +427,7 @@ class _LoginPageState extends State<LoginPage> {
 
     Provider.of<UsuarioProvider>(context, listen: false).usuarioActual(usuario: usuarioLog);
 
+
     ///VERIFICAMOS SI EL USUARIO ANTERIOR LE FALTA SINCRONIZAR SU INFORMACION
     List<Usuario> usuarioListaSincronizar = await AppDatabase.instance.ObtenerUltimoUsuarioSincronziar();
 
@@ -448,12 +457,11 @@ class _LoginPageState extends State<LoginPage> {
     usuarioLog.sesionActiva = "1";
     usuarioLog.logSincronizado = "1";
     usuarioLog.sesionSincronizada = "0";
-
     await AppDatabase.instance.insertarUsuario(usuarioLog);
     await AppDatabase.instance.Eliminar(tabla: "accionesUsuario");
-    for (var accion in usuarioLog.acciones) {
-      await AppDatabase.instance.Guardar(tabla: 'accionesUsuario', value: {"accion": accion});
-    }
+    // for (var accion in usuarioLog.acciones) {
+    //   await AppDatabase.instance.Guardar(tabla: 'accionesUsuario', value: {"accion": accion});
+    // }
     /*if (_guardarDatosPref) {
       _guardarUsuario(
           _numDocController.text, _contraseniaController.text, true);

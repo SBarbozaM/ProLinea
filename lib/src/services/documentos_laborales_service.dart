@@ -6,6 +6,7 @@ import 'package:embarques_tdp/src/models/DocumentosLaborales/docsAcciones_model.
 import 'package:embarques_tdp/src/models/DocumentosLaborales/docsUsuario_model.dart';
 import 'package:embarques_tdp/src/models/DocumentosLaborales/documentoTemporal_model.dart';
 import 'package:embarques_tdp/src/models/DocumentosLaborales/documentos_model.dart';
+import 'package:embarques_tdp/src/models/usuario.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -29,11 +30,22 @@ class DocsUsuarioServicio {
 
       final decoded = jsonDecode(response.body);
 
-      late List<DocsAccion> acciones;
+      late List<AccionId> acciones;
 
       // 🔥 CASO 1: backend devuelve LISTA DIRECTA
       if (decoded is List) {
-        acciones = decoded.map<DocsAccion>((e) => DocsAccion.fromJson(e)).toList();
+        acciones = decoded.map<AccionId>((e) {
+          final doc = DocsAccion.fromJson(e);
+          return AccionId(
+            id: doc.id,
+            accion: doc.nombre,
+            orden: doc.orden.toString(),
+            pendientes: doc.pendientes,
+            icono: doc.icono,
+            accionPredecesora: 0,
+            url: '',
+          );
+        }).toList();
 
         return DocsUsuario(
           rpta: "0",
@@ -46,7 +58,18 @@ class DocsUsuarioServicio {
 
       // 🔥 CASO 2: backend devuelve OBJETO con data
       if (decoded is Map<String, dynamic>) {
-        acciones = (decoded['data'] as List).map<DocsAccion>((e) => DocsAccion.fromJson(e)).toList();
+        acciones = (decoded['data'] as List).map<AccionId>((e) {
+          final doc = DocsAccion.fromJson(e);
+          return AccionId(
+            id: doc.id,
+            accion: doc.nombre,
+            orden: doc.orden.toString(),
+            pendientes: doc.pendientes,
+            icono: doc.icono,
+            accionPredecesora: 0,
+            url: '',
+          );
+        }).toList();
 
         return DocsUsuario(
           rpta: decoded['rpta'] ?? "0",
