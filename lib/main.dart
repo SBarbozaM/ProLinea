@@ -55,7 +55,7 @@ void main() async {
   OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
   OneSignal.initialize("53f63abd-f50c-4a54-95d3-dd149cbfd9f7");
   OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
-
+  await OneSignal.Notifications.requestPermission(true);
   // OneSignal.shared.setNotificationWillShowInForegroundHandler((notification) {
   //   print('Notification received in foreground: ${notification.jsonRepresentation()}');
   //   notification.complete(notification.notification); // Muestra la notificación

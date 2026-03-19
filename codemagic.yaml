@@ -37,12 +37,41 @@ workflows:
           keychain add-certificates
           xcode-project use-profiles
 
+      - name: Set APS Environment
+        script: |
+          ENTITLEMENTS_FILE="$CM_BUILD_DIR/ios/Runner/Runner.entitlements"
+          
+          if [ ! -f "$ENTITLEMENTS_FILE" ]; then
+            cat > "$ENTITLEMENTS_FILE" << EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>aps-environment</key>
+            <string>production</string>
+            <key>com.apple.security.application-groups</key>
+            <array>
+              <string>group.pe.linea.lineaempresa</string>
+            </array>
+          </dict>
+          </plist>
+          EOF
+          else
+            /usr/libexec/PlistBuddy -c "Add :aps-environment string production" "$ENTITLEMENTS_FILE" 2>/dev/null || \
+            /usr/libexec/PlistBuddy -c "Set :aps-environment production" "$ENTITLEMENTS_FILE"
+            
+            /usr/libexec/PlistBuddy -c "Add :com.apple.security.application-groups array" "$ENTITLEMENTS_FILE" 2>/dev/null
+            /usr/libexec/PlistBuddy -c "Add :com.apple.security.application-groups:0 string group.pe.linea.lineaempresa" "$ENTITLEMENTS_FILE" 2>/dev/null
+          fi
+          
+          echo "=== Entitlements ==="
+          cat "$ENTITLEMENTS_FILE"
+
       - name: Build iOS App
         script: |
           PROFILE_FILE=$(ls ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision | head -1)
           echo "Profile file: $PROFILE_FILE"
           
-          # Use openssl instead of security cms
           openssl smime -inform DER -verify -noverify -in "$PROFILE_FILE" -out /tmp/profile_decoded.plist 2>/dev/null
           echo "OpenSSL decode exit: $?"
           cat /tmp/profile_decoded.plist | head -20
