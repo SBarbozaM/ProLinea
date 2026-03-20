@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:embarques_tdp/src/providers/path_provider.dart';
 import 'package:embarques_tdp/src/utils/app_database.dart';
-import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 
 import 'package:awesome_dialog/awesome_dialog.dart';
@@ -199,12 +198,6 @@ class _ManifiestoViajePageState extends State<ManifiestoViajePage> {
                         if (androidInfo.version.sdkInt >= 33) {
                           if (await Permission.videos.request().isGranted && await Permission.photos.request().isGranted) {
                             //migrado 29/08/2025 a :
-                            // await FileSaver.instance.saveFile(
-                            //   name: "${DateTime.now().microsecond}_${_viaje.origen}-${_viaje.destino}_${_viaje.unidad}",
-                            //   bytes: uint8List,
-                            //   fileExtension: "pdf",
-                            //   mimeType: MimeType.pdf,
-                            // );
                             await savePdfToDownloads(context, uint8List, "${DateTime.now().microsecond}_${_viaje.origen}-${_viaje.destino}_${_viaje.unidad}");
 
                             await Future.delayed(Duration(milliseconds: 50));
@@ -233,13 +226,6 @@ class _ManifiestoViajePageState extends State<ManifiestoViajePage> {
                             // DocumentFileSavePlus().saveFile(uint8List, "${DateTime.now().microsecond} _ ${_viaje.origen}-${_viaje.destino} ${_viaje.unidad}.pdf", "appliation/pdf");
                             //migrado 29/08/2025 a :
                             try {
-                              // final result = await FileSaver.instance.saveFile(
-                              //   name: "${DateTime.now().microsecond}_${_viaje.origen}-${_viaje.destino}_${_viaje.unidad}",
-                              //   bytes: uint8List,
-                              //   fileExtension: "pdf",
-                              //   mimeType: MimeType.pdf,
-                              // );
-                              // print("Archivo guardado efn: $result");
                               await savePdfToDownloads(
                                 context,
                                 uint8List,

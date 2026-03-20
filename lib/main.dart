@@ -13,7 +13,6 @@ import 'package:embarques_tdp/src/pages/vinculacion_jornada/Bloc/conductor3/cond
 import 'package:embarques_tdp/src/pages/vinculacion_jornada/Bloc/unidad/unidad_bloc.dart';
 import 'package:embarques_tdp/src/providers/connection_status_provider.dart';
 import 'package:embarques_tdp/src/providers/controlador_provider.dart';
-import 'package:embarques_tdp/src/providers/impresoraProvider.dart';
 import 'package:embarques_tdp/src/providers/providers.dart';
 import 'package:embarques_tdp/src/services/checklist_mantenimiento_servico.dart';
 import 'package:embarques_tdp/src/utils/app_database.dart';
@@ -21,6 +20,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 import 'package:embarques_tdp/src/services/embarques_sup_scaner_servicio.dart';
 
@@ -51,6 +52,9 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await GSS.instance.initialize();
+
+  // Solicitar permisos iniciales
+  await _requestInitialPermissions();
 
   OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
   OneSignal.initialize("53f63abd-f50c-4a54-95d3-dd149cbfd9f7");
@@ -205,3 +209,21 @@ void main() async {
 
 
 ///kfrijfr
+Future<void> _requestInitialPermissions() async {
+  if (Platform.isAndroid) {
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+
+    if (androidInfo.version.sdkInt >= 33) {
+      // Android 13+ requiere permisos granulares
+      await [
+        Permission.photos,
+        Permission.videos,
+        Permission.audio,
+      ].request();
+    } else {
+      // Android < 13 requiere permiso de almacenamiento general
+      await Permission.storage.request();
+    }
+  }
+}
