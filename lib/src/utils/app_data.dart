@@ -1,8 +1,8 @@
 import 'package:geolocator/geolocator.dart';
 
 class AppData {
-  static const String appVersion = '4.6.1+66';
-  static const String appFechaCompilacion = '20/03/2026 12:13';
+  static const String appVersion = '4.6.1+67';
+  static const String appFechaCompilacion = '23/03/2026 11:06';
   static const int radioGeocerca = 2;
   static const accuracy = LocationAccuracy.bestForNavigation;
   static const apiSeguridad = 'https://linea.pe/api_security/v4';
