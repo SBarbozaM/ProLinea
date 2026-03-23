@@ -214,14 +214,9 @@ Future<void> _requestInitialPermissions() async {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
 
-    if (androidInfo.version.sdkInt >= 33) {
-      // Android 13+ requiere permisos granulares. Solo pedimos fotos si es necesario.
-      // Los permisos de video y audio se eliminan para cumplir con Google Play.
-      await [
-        Permission.photos,
-      ].request();
-    } else {
-      // Android < 13 requiere permiso de almacenamiento general
+    if (androidInfo.version.sdkInt < 33) {
+      // Android < 13 requiere permiso de almacenamiento general. 
+      // En Android 13+ no pedimos permisos de fotos/video para cumplir con Google Play.
       await Permission.storage.request();
     }
   }

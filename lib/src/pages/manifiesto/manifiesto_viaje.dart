@@ -5,12 +5,7 @@ import 'package:embarques_tdp/src/utils/app_database.dart';
 import 'package:flutter/material.dart';
 
 import 'package:awesome_dialog/awesome_dialog.dart';
-// import 'package:blue_thermal_printer/blue_thermal_printer.dart';
-import 'package:diacritic/diacritic.dart';
-// import 'package:document_file_save_plus/document_file_save_plus.dart';
 import 'package:embarques_tdp/src/pages/manifiesto/generar_pdf.dart';
-import 'package:embarques_tdp/src/providers/impresoraProvider.dart';
-import 'package:embarques_tdp/src/services/pto_embarque_servicio.dart';
 import 'package:embarques_tdp/src/services/viaje_servicio.dart';
 import 'package:intl/intl.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
@@ -196,41 +191,20 @@ class _ManifiestoViajePageState extends State<ManifiestoViajePage> {
                         AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
 
                         if (androidInfo.version.sdkInt >= 33) {
-                          if (await Permission.videos.request().isGranted && await Permission.photos.request().isGranted) {
-                            //migrado 29/08/2025 a :
-                            await savePdfToDownloads(context, uint8List, "${DateTime.now().microsecond}_${_viaje.origen}-${_viaje.destino}_${_viaje.unidad}");
+                          // En Android 13+ no pedimos permisos multimedia para guardar en descargas
+                          await savePdfToDownloads(context, uint8List, "${DateTime.now().microsecond}_${_viaje.origen}-${_viaje.destino}_${_viaje.unidad}");
 
-                            await Future.delayed(Duration(milliseconds: 50));
-                            setState(() {
-                              loading_pdf = false;
-                            });
+                          await Future.delayed(Duration(milliseconds: 50));
+                          setState(() {
+                            loading_pdf = false;
+                          });
 
-                            ingreso("DESCARGAR MANIFIESTO EN SDK ${androidInfo.version.sdkInt}");
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  "❌ Permiso de almacenamiento denegado",
-                                  style: TextStyle(color: AppColors.whiteColor),
-                                ),
-                                backgroundColor: AppColors.redColor,
-                                duration: Duration(seconds: 1),
-                              ),
-                            );
-                            setState(() {
-                              loading_pdf = false;
-                            });
-                          }
+                          ingreso("DESCARGAR MANIFIESTO EN SDK ${androidInfo.version.sdkInt}");
                         } else {
+                          // En Android < 13 seguimos pidiendo almacenamiento legacy
                           if (await Permission.storage.request().isGranted) {
-                            // DocumentFileSavePlus().saveFile(uint8List, "${DateTime.now().microsecond} _ ${_viaje.origen}-${_viaje.destino} ${_viaje.unidad}.pdf", "appliation/pdf");
-                            //migrado 29/08/2025 a :
                             try {
-                              await savePdfToDownloads(
-                                context,
-                                uint8List,
-                                "${DateTime.now().microsecond}_${_viaje.origen}-${_viaje.destino}_${_viaje.unidad}",
-                              );
+                              await savePdfToDownloads(context, uint8List, "${DateTime.now().microsecond}_${_viaje.origen}-${_viaje.destino}_${_viaje.unidad}");
 
                               await Future.delayed(Duration(milliseconds: 50));
                               setState(() {
@@ -254,10 +228,7 @@ class _ManifiestoViajePageState extends State<ManifiestoViajePage> {
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text(
-                                  "❌ Permiso de almacenamiento denegado",
-                                  style: TextStyle(color: AppColors.whiteColor),
-                                ),
+                                content: Text("❌ Permiso de almacenamiento denegado"),
                                 backgroundColor: AppColors.redColor,
                                 duration: Duration(seconds: 1),
                               ),
