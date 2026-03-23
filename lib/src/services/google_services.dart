@@ -14,7 +14,7 @@ import 'package:provider/provider.dart';
 import '../providers/providers.dart';
 import '../providers/connection_status_provider.dart';
 
-import 'package:unique_identifier/unique_identifier.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 class GoogleServices {
   static Future<void> setEvent({required String nombreEvento, Usuario? usuario, String dataAdicional = ''}) async {
@@ -55,8 +55,16 @@ class GoogleServices {
     String? deviceId;
 
     try {
-      deviceId = await UniqueIdentifier.serial;
-    } on PlatformException {
+      if (Platform.isAndroid) {
+        DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+        AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+        deviceId = androidInfo.id; // ANDROID_ID (no requiere permisos)
+      } else if (Platform.isIOS) {
+        DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+        IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+        deviceId = iosInfo.identifierForVendor;
+      }
+    } catch (e) {
       deviceId = null;
     }
 

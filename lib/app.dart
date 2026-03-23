@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:embarques_tdp/main.dart';
 import 'package:embarques_tdp/src/models/jornada.dart';
@@ -19,7 +20,9 @@ import 'package:in_app_update/in_app_update.dart';
 import 'package:intl/intl.dart';
 // import 'package:platform_device_id/platform_device_id.dart';
 import 'package:provider/provider.dart';
-import 'package:unique_identifier/unique_identifier.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+
+import 'package:embarques_tdp/src/utils/app_data.dart';
 
 class MyApp extends StatefulWidget {
   @override
@@ -33,7 +36,15 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     String? deviceId;
 
     try {
-      deviceId = await UniqueIdentifier.serial;
+      if (Platform.isAndroid) {
+        DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+        AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+        deviceId = androidInfo.id;
+      } else if (Platform.isIOS) {
+        DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+        IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+        deviceId = iosInfo.identifierForVendor;
+      }
     } on PlatformException {
       deviceId = null;
     }
