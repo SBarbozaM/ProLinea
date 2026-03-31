@@ -5,6 +5,7 @@ import 'package:embarques_tdp/src/utils/app_colors.dart';
 import 'package:embarques_tdp/src/utils/app_database.dart';
 import 'package:embarques_tdp/src/services/onesignal_service.dart';
 import 'package:flutter/material.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 
 class SplashPage extends StatefulWidget {
@@ -47,6 +48,10 @@ class _SplashPageState extends State<SplashPage> {
         listausuario[0].fechaEmp,
         "${listausuario[0].vinculacionActiva}",
       );
+      // Sincronizar usuario con OneSignal para mantener la identidad en reinicios
+      String externalUserId = '${usuarioAuth.tipoDoc}-${usuarioAuth.numDoc}';
+      await OneSignal.login(externalUserId);
+      
       await Future.delayed(Duration(seconds: 1));
       // Navigator.of(context).pushReplacementNamed('inicio');
 

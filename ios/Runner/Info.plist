@@ -59,5 +59,9 @@
 	<string>Esta aplicación necesita acceso a tus contactos</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Esta aplicación usa Face ID para confirmar tu identidad</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 </dict>
 </plist>

@@ -2,7 +2,6 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:embarques_tdp/src/models/Autorizaciones/AuthUsuario.dart';
 import 'package:embarques_tdp/src/models/Autorizaciones/subAuth_model.dart';
 import 'package:embarques_tdp/src/models/usuario.dart';
-import 'package:embarques_tdp/src/pages/autorizaciones/list_docsAuth_page.dart';
 import 'package:embarques_tdp/src/services/list_sub_acciones_service.dart';
 
 import 'package:flutter/material.dart';
@@ -150,14 +149,10 @@ class _SubAutorizacionesPageState extends State<SubAutorizacionesPage> {
                         trailing: const Icon(Icons.arrow_forward_ios_outlined, color: AppColors.mainBlueColor),
                         onTap: () {
                           final subauthIdModel = Provider.of<SubAuthIdModel>(context, listen: false);
-                          final subAuthAction = SubAuthActionModel(widget.AccionPadre!.id.toString(), subAuthAccion.accion, subAuthAccion.orden);
+                          final subAuthAction = SubAuthActionModel(subAuthAccion.id.toString(), subAuthAccion.accion, subAuthAccion.orden);
                           subauthIdModel.updateAuthAction(subAuthAction);
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => ListDocsPage(
-                                subAuth: subAuthAccion, // 👈 se pasa directo
-                              ),
-                            ),
+                          Navigator.of(context).pushNamed(
+                            'irListaDocsAuth',
                           );
                         },
                       ),

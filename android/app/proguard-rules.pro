@@ -15,15 +15,10 @@
 -keep class com.google.firebase.** { *; }
 -keep class com.google.android.gms.** { *; }
 
+# OneSignal
+-keep class com.onesignal.** { *; }
+-dontwarn com.onesignal.**
+
 # Kotlin
 -keep class kotlin.** { *; }
 -keep class kotlinx.** { *; }
-```
-
-## ✅ Checklist final
-```
-✅ settings.gradle.kts corregido (sintaxis Kotlin DSL)
-✅ build.gradle.kts raíz con AGP 8.5.1
-✅ app/build.gradle.kts con Java 17
-✅ gradle.properties configurado
-✅ proguard-rules.pro creado

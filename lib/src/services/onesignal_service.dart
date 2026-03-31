@@ -13,14 +13,7 @@ import 'package:embarques_tdp/src/utils/app_database.dart';
 
 class OneSignalService {
   void init(GlobalKey<NavigatorState> navigatorKey) {
-    // OneSignal.shared.setAppId("53f63abd-f50c-4a54-95d3-dd149cbfd9f7");
-    OneSignal.initialize("53f63abd-f50c-4a54-95d3-dd149cbfd9f7");
-
-    // Solicita permisos de notificación al usuario
-    // OneSignal.shared.promptUserForPushNotificationPermission().then((accepted) {
-    //   print("Permiso de notificación aceptado: $accepted");
-    // });
-    OneSignal.Notifications.requestPermission(true);
+    // La inicialización ahora se maneja en main.dart para centralizar la configuración.
 
     // OneSignal.shared.setNotificationWillShowInForegroundHandler((notification) {
     //   print('Notification received in foreground: ${notification.jsonRepresentation()}');
@@ -86,19 +79,17 @@ class OneSignalService {
             // boData llega como String JSON, hay que parsearlo
             final Map<String, dynamic> boDataMap = Map<String, dynamic>.from(boData as Map);
 
-            navigatorKey.currentState?.pushNamedAndRemoveUntil(
+            navigatorKey.currentState?.pushNamedAndRemoveUntil('inicio', (route) => false);
+            navigatorKey.currentState?.pushNamed(
               page,
-              (Route<dynamic> route) => false,
               arguments: {
-                'tipoDocumento': boDataMap['tipoDocumento'], // {"id":1,"descripcion":"...","codigo":"REQ-ALM"}
-                'tipo': boDataMap['tipo'], // "pendientes"
+                'tipoDocumento': boDataMap['tipoDocumento'],
+                'tipo': boDataMap['tipo'],
               },
             );
           } else {
-            navigatorKey.currentState?.pushNamedAndRemoveUntil(
-              page,
-              (Route<dynamic> route) => false,
-            );
+            navigatorKey.currentState?.pushNamedAndRemoveUntil('inicio', (route) => false);
+            navigatorKey.currentState?.pushNamed(page);
           }
         }
       } else {

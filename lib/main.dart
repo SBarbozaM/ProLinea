@@ -33,7 +33,7 @@ import 'src/services/google_services.dart';
 
 final internetChecker = VerificarConexionInternet();
 bool datosPorSincronizar = false;
-bool _requireConsent = true;
+bool _requireConsent = false;
 //bool sincronizar = true;
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 

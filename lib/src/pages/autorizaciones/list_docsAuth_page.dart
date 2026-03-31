@@ -126,11 +126,10 @@ class _ListDocsPageState extends State<ListDocsPage> {
   void initState() {
     super.initState();
     final usuarioProvider = Provider.of<UsuarioProvider>(context, listen: false);
-    final subauthIdModel = widget.subAuth;
-    // final subauthIdModel = Provider.of<SubAuthIdModel>(context, listen: false);
+    final subauthIdModel = Provider.of<SubAuthIdModel>(context, listen: false);
     final authIdModel = Provider.of<AuthIdModel>(context, listen: false);
 
-    _obtenerListDocsAuth(usuarioProvider.usuario.tipoDoc, usuarioProvider.usuario.numDoc, widget.subAuth!.id.toString());
+    _obtenerListDocsAuth(usuarioProvider.usuario.tipoDoc, usuarioProvider.usuario.numDoc, subauthIdModel.subAuthAction.id);
 
     _setSwitchColors();
   }
@@ -322,7 +321,7 @@ class _ListDocsPageState extends State<ListDocsPage> {
     String subactiontext = "";
     String subactiontextplural = "";
     // final provSub = Provider.of<SubAuthIdModel>(context).subAuthAction.id;
-    final provSub = widget.subAuth!.id.toString();
+    final provSub = subauthIdModel.subAuthAction.id;
 
     if (provSub == "194" || provSub == "196" || provSub == "195" || provSub == "215") {
       subactiontext = "Gasto";
@@ -353,7 +352,7 @@ class _ListDocsPageState extends State<ListDocsPage> {
       child: Scaffold(
         appBar: AppBar(
           // title: Text(subactiontextplural + ' ' + subauthIdModel.subAuthAction.action.toLowerCase()),
-          title: Text(widget.subAuth!.accion.toLowerCase()),
+          title: Text(subauthIdModel.subAuthAction.action.toLowerCase()),
           backgroundColor: AppColors.mainBlueColor,
           leading: IconButton(
             onPressed: () async {
@@ -494,7 +493,7 @@ class _ListDocsPageState extends State<ListDocsPage> {
                                                             preautOauto = 'P';
                                                           }
 
-                                                          final response = await _AutorizaRechaza(widget.subAuth!.id.toString(), docAuth.pkOrden, docAuth.tipoDoc, preautOauto, docAuth.motivo, docAuth.documento);
+                                                          final response = await _AutorizaRechaza(subauthIdModel.subAuthAction.id, docAuth.pkOrden, docAuth.tipoDoc, preautOauto, docAuth.motivo, docAuth.documento);
                                                           setState(() {
                                                             _switchStates[index] = SwitchState.dual;
                                                             _previousState[index] = _switchStates[index];
@@ -551,7 +550,7 @@ class _ListDocsPageState extends State<ListDocsPage> {
                                                           setState(() {
                                                             _responseState[index] = statusAuthRechaza.progress;
                                                           });
-                                                          final response = await _AutorizaRechaza(widget.subAuth!.id.toString(), docAuth.pkOrden, docAuth.tipoDoc, estado, docAuth.motivo, docAuth.documento);
+                                                          final response = await _AutorizaRechaza(subauthIdModel.subAuthAction.id, docAuth.pkOrden, docAuth.tipoDoc, estado, docAuth.motivo, docAuth.documento);
 
                                                           setState(() {
                                                             if (response.rpta == "0") {
@@ -724,7 +723,7 @@ class _ListDocsPageState extends State<ListDocsPage> {
                                                         Coloresult = AppColors.rojoLineaColor;
                                                       } //--hou
 
-                                                      final response = await _AutorizaRechaza(widget.subAuth!.id.toString(), docAuth.pkOrden, docAuth.tipoDoc, value ? activaOrecha : OrdenAuthoPreAut, docAuth.motivo, docAuth.documento);
+                                                      final response = await _AutorizaRechaza(subauthIdModel.subAuthAction.id, docAuth.pkOrden, docAuth.tipoDoc, value ? activaOrecha : OrdenAuthoPreAut, docAuth.motivo, docAuth.documento);
                                                       if (response.rpta == "0") {
                                                         ScaffoldMessenger.of(context).showSnackBar(
                                                           SnackBar(
@@ -1216,7 +1215,7 @@ class _ListDocsPageState extends State<ListDocsPage> {
                 onRefresh: () => _obtenerListDocsAuth(
                   usuarioProvider.usuario.tipoDoc,
                   usuarioProvider.usuario.numDoc,
-                  widget.subAuth!.id.toString(),
+                  subauthIdModel.subAuthAction.id,
                 ),
                 color: AppColors.mainBlueColor,
                 child: ListView(

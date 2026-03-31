@@ -343,7 +343,10 @@ class _LoginPageState extends State<LoginPage> {
           String externalUserId = '${usuarioLog.tipoDoc}-${usuarioLog.numDoc}';
           await OneSignal.login(externalUserId);
 
-          await usuarioServicio.insertNoriUser(usuarioLog.tipoDoc, usuarioLog.numDoc, '', sistemaOperativo, idDispositivo, '', '11');
+          // Obtener el ID de suscripción de OneSignal (Player ID)
+          String? onesignalId = OneSignal.User.pushSubscription.id;
+
+          await usuarioServicio.insertNoriUser(usuarioLog.tipoDoc, usuarioLog.numDoc, '', sistemaOperativo, idDispositivo, onesignalId ?? '', '11');
         } catch (e) {
           if (kDebugMode) {
             print('Error al insertar usuario: $e');
@@ -426,7 +429,6 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     Provider.of<UsuarioProvider>(context, listen: false).usuarioActual(usuario: usuarioLog);
-
 
     ///VERIFICAMOS SI EL USUARIO ANTERIOR LE FALTA SINCRONIZAR SU INFORMACION
     List<Usuario> usuarioListaSincronizar = await AppDatabase.instance.ObtenerUltimoUsuarioSincronziar();

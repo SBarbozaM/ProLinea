@@ -10,15 +10,3 @@
     </array>
 </dict>
 </plist>
-```
-
-**2. Vincúlalo en Xcode** — abre `ios/Runner.xcworkspace` en Xcode:
-- Selecciona el target **Runner**
-- Tab **Signing & Capabilities**
-- Si ya tienes **Push Notifications** agregado como capability, Xcode debería apuntar automáticamente al entitlements file
-- Si no está, haz click en **+ Capability** → agrega **Push Notifications**
-- Verifica que en **Signing & Capabilities** el campo **Entitlements File** apunte a `Runner/Runner.entitlements`
-
-**3. Verifica en `ios/Runner.xcodeproj/project.pbxproj`** que exista esta línea en la configuración Release:
-```
-CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
